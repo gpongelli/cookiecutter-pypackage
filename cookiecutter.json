@@ -11,6 +11,10 @@
   "open_source_license": ["MIT", "BSD-3-Clause", "ISC", "Apache-2.0", "GPL-3.0-only", "Not open source"],
   "docstrings_style": ["google", "numpy", "pep257"],
   "use_mypy": "y",
+  "doc_generator": ["sphinx", "mkdocstring"],
   "install_precommit_hooks": "y",
-  "_copy_without_render": ["docs/changelog.md", "docs/contributing.md", "docs/index.md", ".github/workflows/*.yml"]
+  "_copy_without_render": ["mkdocstring_docs/changelog.md", "mkdocstring_docs/contributing.md", "mkdocstring_docs/index.md",
+      "sphinx_docs/source/authors.rst", "sphinx_docs/source/contributing.rst", "sphinx_docs/source/history.rst",
+      "sphinx_docs/source/introduction.rst",
+      ".github/workflows/*.yml"]
 }
