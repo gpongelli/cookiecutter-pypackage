@@ -40,6 +40,7 @@ extensions = [
     "sphinx.ext.inheritance_diagram",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
+    "m2r2",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -52,6 +53,7 @@ exclude_patterns = [
     "setup.rst",
 ]
 
+source_suffix = ['.rst', '.md']
 
 # -- Options for HTML output -------------------------------------------------
 

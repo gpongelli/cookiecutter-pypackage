@@ -13,7 +13,8 @@ conform to best practice.
 This tool will create Python project with the following features:
 
 * [Poetry](https://python-poetry.org/): Manage dependency, build and release
-* [Mkdocs](https://www.mkdocs.org): Writing your docs in markdown style
+* [Mkdocs](https://www.mkdocs.org): Writing your docs in markdown style, alternative to Sphinx
+* [Sphinx](https://www.sphinx-doc.org/en/master/index.html): Writing your docs in RST style, alternative to Mkdocs
 * Testing with [Pytest](https://pytest.org) (unittest is still supported out of the box)
 * Code coverage report and endorsed by [Codecov](https://codecov.io)
 * [Tox](https://tox.readthedocs.io): Test your code against environment matrix, lint and artifact check
@@ -48,4 +49,4 @@ Then follow **[Tutorial](docs/tutorial.md)** to finish other configurations.
 
 # Credits
 
-This repo is forked from [zillionare/python-project-wizard](https://github.com/zillionare/python-project-wizard), which originally forked from [audreyfeldroy/cookiecutter-pypackage](https://github.com/audreyfeldroy/cookiecutter-pypackage)
+This repo is forked from [waynerv/cookiecutter-pypackage](https://github.com/waynerv/cookiecutter-pypackage), forked from [zillionare/python-project-wizard](https://github.com/zillionare/python-project-wizard), which originally forked from [audreyfeldroy/cookiecutter-pypackage](https://github.com/audreyfeldroy/cookiecutter-pypackage)
