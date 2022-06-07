@@ -13,6 +13,8 @@
 import os
 import sys
 
+from {{ cookiecutter.pkg_name }} import __version__
+
 sys.path.insert(0, os.path.abspath("."))
 
 
@@ -23,8 +25,8 @@ copyright = "{% now 'local' %}, {{ cookiecutter.full_name }}"
 author = "{{ cookiecutter.full_name }}"
 
 # The full version, including alpha/beta/rc tags
-version = '{{ cookiecutter.version }}'
-release = '{{ cookiecutter.version }}'
+version = __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
