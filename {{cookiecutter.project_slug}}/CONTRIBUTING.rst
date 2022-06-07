@@ -81,9 +81,7 @@ Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for 
 6. When you're done making changes, check that your changes pass flake8 and the
    tests, including testing other Python versions with tox::
 
-    ```
     $ poetry run tox
-    ```
 
 
 7. Commit your changes and push your branch to GitHub::
