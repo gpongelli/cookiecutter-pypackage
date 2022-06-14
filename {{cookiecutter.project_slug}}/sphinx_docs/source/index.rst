@@ -3,7 +3,7 @@
    contain the root `toctree` directive.
 
 Welcome to {{ cookiecutter.project_name }}'s documentation!
-================================================
+==========================================================================
 
 .. toctree::
    :maxdepth: 8

@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
     if 'mkdocstr' in '{{ cookiecutter.doc_generator|lower }}':
         # remove sphinx
-        for remove_me in ['AUTHORS.rst', 'CONTRIBUTING.rst']:
+        for remove_me in ['AUTHORS.rst']:
             remove_file(remove_me)
         remove_folder('sphinx_docs')
         rename_folder('mkdocstring_docs', 'docs')

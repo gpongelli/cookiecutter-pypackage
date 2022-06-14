@@ -59,6 +59,7 @@ Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for 
 4. Install dependencies and start your virtualenv:
 
     ```
+    $ poetry update
     $ poetry install -E test -E doc -E dev
     ```
 
@@ -70,7 +71,7 @@ Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for 
 
     Now you can make your changes locally.
 
-6. When you're done making changes, check that your changes pass the
+6. When you're done making changes, check that your changes pass flake8 and
    tests, including testing other Python versions, with tox:
 
     ```
@@ -111,11 +112,11 @@ To run a subset of tests.
 ## Deploying
 
 A reminder for the maintainers on how to deploy.
-Make sure all your changes are committed (including an entry in CHANGELOG.md).
+Make sure all your changes are committed, be sure to follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) so CHANGELOG.md file will automatically filled by commitizen tool.
 Then run:
 
 ```
-$ poetry run bump2version patch # possible: major / minor / patch
+$ poetry run cz bump
 $ git push
 $ git push --tags
 ```
