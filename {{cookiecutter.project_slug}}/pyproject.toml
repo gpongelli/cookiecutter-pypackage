@@ -24,10 +24,8 @@ classifiers=[
 {%- endif %}
     'Natural Language :: English',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.6',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
 ]
 packages = [
     { include = "{{ cookiecutter.pkg_name }}" },
@@ -35,7 +33,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.6.2,<4.0"
+python = ">=3.9.13,<4.0"
 {%- if cookiecutter.command_line_interface|lower == 'click' %}
 click = "8.0.1"
 {%- endif %}
@@ -47,9 +45,9 @@ flake8-docstrings = { version = "^1.6.0", optional = true }
 {%- if cookiecutter.use_mypy == 'y' %}
 mypy = {version = "^0.900", optional = true}
 {%- endif %}
-pytest  = { version = "^6.2.4", optional = true}
-pytest-cov  = { version = "^2.12.0", optional = true}
-tox  = { version = "^3.20.1", optional = true}
+pytest  = { version = "^7.1.2", optional = true}
+pytest-cov  = { version = "^3.0.0", optional = true}
+tox  = { version = "^3.25.0", optional = true}
 virtualenv  = { version = "^20.2.2", optional = true}
 pip  = { version = "^20.3.1", optional = true}
 twine  = { version = "^3.3.0", optional = true}
@@ -68,7 +66,8 @@ m2r2 = { version = "0.3.2", optional = true }
 {%- endif %}
 pre-commit = {version = "^2.12.0", optional = true}
 toml = {version = "^0.10.2", optional = true}
-bump2version = {version = "^1.0.1", optional = true}
+commitizen = {version = "^2.27.1", optional = true}
+
 
 [tool.poetry.extras]
 test = [
@@ -83,7 +82,7 @@ test = [
     "pytest-cov"
     ]
 
-dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "bump2version"]
+dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml"]
 
 doc = [
 {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
@@ -140,3 +139,28 @@ skip_gitignore = true
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "{{ cookiecutter.version }}"
+version_files = [
+    "{{ cookiecutter.pkg_name }}/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+signed_tag = true
+bump_message = 'Bump version: $current_version -> $new_version'
+update_changelog_on_bump = true
+style = [
+    ["qmark", "fg:#ff9d00 bold"],
+    ["question", "bold"],
+    ["answer", "fg:#ff9d00 bold"],
+    ["pointer", "fg:#ff9d00 bold"],
+    ["highlighted", "fg:#ff9d00 bold"],
+    ["selected", "fg:#cc5454"],
+    ["separator", "fg:#cc5454"],
+    ["instruction", ""],
+    ["text", ""],
+    ["disabled", "fg:#858585 italic"]
+]
+
