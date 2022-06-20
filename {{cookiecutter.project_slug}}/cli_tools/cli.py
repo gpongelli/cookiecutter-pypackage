@@ -2,13 +2,15 @@
 
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 import click
+from {{ cookiecutter.project_name }} import __version__
 
 
 @click.command()
 def main():
     """Main entrypoint."""
-    click.echo("{{ cookiecutter.project_slug }}")
-    click.echo("=" * len("{{ cookiecutter.project_slug }}"))
+    _str = f"{{ cookiecutter.project_slug }} v{__version__}"
+    click.echo(_str)
+    click.echo("=" * len("_str"))
     click.echo("{{ cookiecutter.project_short_description }}")
 
 
