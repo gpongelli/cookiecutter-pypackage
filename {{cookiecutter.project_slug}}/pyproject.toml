@@ -67,6 +67,11 @@ m2r2 = { version = "0.3.2", optional = true }
 pre-commit = {version = "^2.12.0", optional = true}
 toml = {version = "^0.10.2", optional = true}
 commitizen = {version = "^2.27.1", optional = true}
+bandit = "^1.7.4"
+yamllint = "^1.26.3"
+tqdm = "^4.64.0"
+codespell = "^2.1.0"
+pylint = "^2.14.3"
 
 
 [tool.poetry.extras]
@@ -80,6 +85,10 @@ test = [
     "flake8",
     "flake8-docstrings",
     "pytest-cov"
+    "bandit",
+    "yamllint",
+    "codespell",
+    "pylint"
     ]
 
 dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml"]
@@ -164,3 +173,49 @@ style = [
     ["disabled", "fg:#858585 italic"]
 ]
 
+
+[tool.bandit]
+tests = [
+    # list from https://github.com/outscale/osc-sdk-python/blob/master/bandit.conf
+    "B101",  # assert_used
+    "B103",  # set_bad_file_permissions
+    "B105",  # hardcoded_password_string
+    "B106",  # hardcoded_password_funcarg
+    "B107",  # hardcoded_password_default
+    "B108",  # hardcoded_tmp_directory
+    "B110",  # try_except_pass
+    "B112",  # try_except_continue
+    "B108",  # hardcoded_tmp_directory
+    "B301",  # pickle library
+    "B303",  # MD5 insecure hash function
+    "B304",  # insecure ciphers
+    "B305",  # insecure cipher modes
+    "B306",  # deprecated mktemp
+    "B307",  # eval - Use of possibly insecure function - consider using safer ast.literal_eval
+    "B313",  # xml_bad_cElementTree
+    "B314",  # xml_bad_ElementTree
+    "B315",  # xml_bad_expatreader
+    "B316",  # xml_bad_expatbuilder
+    "B317",  # xml_bad_sax
+    "B318",  # xml_bad_minidom
+    "B319",  # xml_bad_pulldom
+    "B320",  # xml_bad_etree
+    "B323",  # unverified_context
+    "B324",  # hashlib_new_insecure_functions
+    "B325",  # tempnam
+    "B501",  # request_with_no_cert_validation
+    "B502",  # ssl_with_bad_version
+    "B503",  # ssl_with_bad_defaults
+    "B504",  # ssl_with_no_version
+    "B505",  # weak_cryptographic_key
+    "B506",  # yaml_load
+    "B507",  # ssh_no_host_key_verification
+    "B601",  # paramiko_calls
+    "B602",  # subprocess_popen_with_shell_equals_true
+    "B604",  # any_other_function_with_shell_equals_true
+    "B605",  # start_process_with_a_shell
+    "B606",  # start_process_with_no_shell
+    "B607",  # start_process_with_partial_path
+    "B608",  # hardcoded_sql_expressions
+    "B609"   # linux_commands_wildcard_injection
+]
