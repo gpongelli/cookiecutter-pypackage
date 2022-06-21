@@ -111,7 +111,7 @@ doc = [
 
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 [tool.poetry.scripts]
-{{ cookiecutter.project_slug }} = '{{ cookiecutter.pkg_name }}.cli:main'
+{{ cookiecutter.project_slug }} = '{{ cookiecutter.pkg_name }}.cli_tools.cli:main'
 
 {% endif -%}
 [tool.black]
