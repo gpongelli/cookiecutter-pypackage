@@ -67,11 +67,12 @@ m2r2 = { version = "0.3.2", optional = true }
 pre-commit = {version = "^2.12.0", optional = true}
 toml = {version = "^0.10.2", optional = true}
 commitizen = {version = "^2.27.1", optional = true}
-bandit = "^1.7.4"
-yamllint = "^1.26.3"
+darglint = {version = "^1.8.1", optional = true}
+bandit = {version = "^1.7.4", optional = true}
+yamllint = {version = "^1.26.3", optional = true}
 tqdm = "^4.64.0"
-codespell = "^2.1.0"
-pylint = "^2.14.3"
+codespell = {version = "^2.1.0", optional = true}
+pylint = {version = "^2.14.3", optional = true}
 
 
 [tool.poetry.extras]
@@ -88,10 +89,11 @@ test = [
     "bandit",
     "yamllint",
     "codespell",
-    "pylint"
+    "pylint",
+    "darglint"
     ]
 
-dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml"]
+dev = ["tox", "pre-commit", "virtualenv", "pip", "twine", "toml", "tqdm"]
 
 doc = [
 {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
@@ -143,7 +145,7 @@ ensure_newline_before_comments = true
 line_length = 120
 skip_gitignore = true
 # you can skip files as below
-#skip_glob = docs/conf.py
+#skip_glob = ["docs/conf.py", "path/*"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
