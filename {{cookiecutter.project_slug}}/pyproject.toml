@@ -221,3 +221,9 @@ tests = [
     "B608",  # hardcoded_sql_expressions
     "B609"   # linux_commands_wildcard_injection
 ]
+
+
+#[tool.pylint]
+#ignore-paths = [
+#    "folder/*"
+#]
