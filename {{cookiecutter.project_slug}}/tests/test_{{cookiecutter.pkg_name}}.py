@@ -37,3 +37,14 @@ def test_command_line_interface():
     assert help_result.exit_code == 0
     assert '--help  Show this message and exit.' in help_result.output
 {%- endif %}
+
+
+def test_py_version():
+    import sys
+    print(f"in TEST: {sys.version}  -- {sys.version_info}")
+    # if sys.version_info <= (3, 9, 18):
+    #     # 3.9 OK
+    #     assert True
+    # else:
+    #     # 3.10 FAIL
+    #     assert False
