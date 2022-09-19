@@ -2,7 +2,7 @@
 
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 import click
-from {{ cookiecutter.project_name }} import __version__
+from {{ cookiecutter.pkg_name }} import __version__
 
 
 @click.command()
