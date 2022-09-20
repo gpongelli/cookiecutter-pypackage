@@ -10,7 +10,7 @@ def main():
     """Main entrypoint."""
     _str = f"{{ cookiecutter.project_slug }} v{__version__}"
     click.echo(_str)
-    click.echo("=" * len("_str"))
+    click.echo("=" * len(_str))
     click.echo("{{ cookiecutter.project_short_description }}")
 
 
