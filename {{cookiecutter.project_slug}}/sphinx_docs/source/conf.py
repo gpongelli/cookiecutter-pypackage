@@ -17,6 +17,14 @@ from {{ cookiecutter.pkg_name }} import __version__
 
 sys.path.insert(0, os.path.abspath("."))
 
+try:
+    shutil.rmtree(Path.cwd().parent.joinpath('build'))
+except FileNotFoundError:
+    pass
+try:
+    shutil.rmtree(Path.cwd().joinpath('_generated'))
+except FileNotFoundError:
+    pass
 
 # -- Project information -----------------------------------------------------
 
