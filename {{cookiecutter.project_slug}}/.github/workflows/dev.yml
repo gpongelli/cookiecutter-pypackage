@@ -41,6 +41,10 @@ jobs:
           poetry install --with devel
       #    pip install poetry tox tox-gh-actions
 
+      - name: linter checks with tox
+        run:
+          poetry run tox -e lint
+
       - name: test with tox
         run:
           poetry run tox -e py${{ matrix.python-versions }}
