@@ -11,7 +11,9 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import shutil
 import sys
+from pathlib import Path
 
 from {{ cookiecutter.pkg_name }} import __version__
 
