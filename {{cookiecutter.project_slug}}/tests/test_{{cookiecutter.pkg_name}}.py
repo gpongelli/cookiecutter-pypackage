@@ -5,7 +5,7 @@ import pytest
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 from click.testing import CliRunner
 
-from {{ cookiecutter.pkg_name }} import cli
+from {{ cookiecutter.pkg_name }}.cli_tools import cli
 {%- endif %}
 
 
