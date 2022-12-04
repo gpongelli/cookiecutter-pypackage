@@ -7,7 +7,7 @@ on:
   # Triggers the workflow on push events but only for the master branch
   push:
     tags:
-      - 'v*'
+      - 'v*.*.*'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -21,7 +21,7 @@ jobs:
 
     strategy:
       matrix:
-        python-versions: [3.8]
+        python-versions: [3.9]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -34,6 +34,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      # https://github.com/mindsers/changelog-reader-action
       - name: Get Changelog Entry
         id: changelog_reader
         uses: mindsers/changelog-reader-action@v2
@@ -42,20 +43,28 @@ jobs:
           version: ${{ steps.tag_name.outputs.current_version }}
           path: ./CHANGELOG.md
 
-      - uses: actions/setup-python@v2
+      # https://github.com/actions/setup-python
+      - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-versions }}
+          cache: 'poetry'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install poetry
+          poetry install --with devel
 
-      - name: build documentation
+      {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
+      - name: build mkdocs documentation
         run: |
-          poetry install -E doc
+          poetry install --with devel
           poetry run mkdocs build
-
+      {%- else %}
+      - name: build Sphinx documentation
+        run: |
+          poetry install --with devel
+          poetry run sphinx-build -b html docs/source/ ./site
+      {%- endif %}
       - name: publish documentation
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -70,20 +79,21 @@ jobs:
         run: >-
           ls -l
 
+      # https://github.com/softprops/action-gh-release
       - name: create github release
         id: create_release
         uses: softprops/action-gh-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          token: ${{ secrets.make_gh_release_token }}
           body: ${{ steps.changelog_reader.outputs.changes }}
           files: dist/*.whl
           draft: false
           prerelease: false
 
+      # https://github.com/pypa/gh-action-pypi-publish
       - name: publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+          user: ${{ secrets.pypi_username }}
+          password: ${{ secrets.pypi_password }}
           skip_existing: true
