@@ -18,10 +18,15 @@ jobs:
 
     strategy:
       matrix:
-        python-versions: [ 3.8 ]
+        python-versions: [3.9]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      # https://github.com/actions/setup-python/blob/main/docs/advanced-usage.md#caching-packages
+      - name: Install Poetry
+        run: pipx install poetry
+
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-versions }}
