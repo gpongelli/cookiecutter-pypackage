@@ -46,7 +46,7 @@
     [tool.poetry.group.devel]
         optional = true
         [tool.poetry.group.devel.dependencies]
-            pip  = "^20.3.1"
+            pip  = "^22.3.1"
             black  = "^22.0"
             isort  = "^5.8.0"
             flake8  = "^3.9.2"
@@ -54,8 +54,8 @@
             {%- if cookiecutter.use_mypy == 'y' %}
             mypy = "^0.961"
             {%- endif %}
-            pytest  = "^7.1.2"
-            pytest-cov  = "^3.0.0"
+            pytest  = "^7.2.0"
+            pytest-cov  = "^4.0.0"
             tox  = "^3.25.0"
             virtualenv  = "^20.2.2"
             twine  = "^3.3.0"
@@ -193,11 +193,11 @@
     ]
 
 
-#[tool.pylint]
+[tool.pylint]
 #ignore-paths = [
 #    "folder/*"
 #]
-#max-line-length=120
+max-line-length=120
 
 [build-system]
     requires = ["poetry-core>=1.0.0"]
