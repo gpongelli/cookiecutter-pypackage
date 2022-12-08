@@ -60,7 +60,7 @@ Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for 
 
     ```
     $ poetry update
-    $ poetry install -E test -E doc -E dev
+    $ poetry install --with devel
     ```
 
 5. Create a branch for local development:
@@ -75,7 +75,7 @@ Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for 
    tests, including testing other Python versions, with tox:
 
     ```
-    $ poetry run tox
+    $ poetry run tox -e format -e lint
     ```
 
 7. Commit your changes and push your branch to GitHub:
