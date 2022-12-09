@@ -46,7 +46,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          poetry install --with devel
+          poetry install --with devel --sync
 
       {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
       - name: build mkdocs documentation
