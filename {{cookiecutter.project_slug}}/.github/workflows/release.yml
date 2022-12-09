@@ -58,15 +58,15 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v2
 
-      {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
-      - name: build mkdocs documentation
-        run: |
-          poetry install --with devel
-          poetry run mkdocs build
-      {%- else %}
-      - name: build Sphinx documentation
+      - name: build documentation
         run: poetry run tox -e docs
 
+      {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
+      - name: Upload mdocs doc artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: './public'
+      {%- else %}
       - name: Upload Sphinx doc artifact
         uses: actions/upload-pages-artifact@v1
         with:
