@@ -1,4 +1,4 @@
-# Publish package on main branch if it's tagged with 'v*'
+# Publish package on main branch if it's tagged with '*.*.*'
 
 name: release & publish workflow
 
@@ -11,6 +11,12 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -48,6 +54,10 @@ jobs:
           python -m pip install --upgrade pip
           poetry install --with devel --sync
 
+      # Build and publish documentation
+      - name: Setup Pages
+        uses: actions/configure-pages@v2
+
       {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
       - name: build mkdocs documentation
         run: |
@@ -55,15 +65,17 @@ jobs:
           poetry run mkdocs build
       {%- else %}
       - name: build Sphinx documentation
-        run: |
-          poetry install --with devel
-          poetry run sphinx-build -b html docs/source/ ./site
-      {%- endif %}
-      - name: publish documentation
-        uses: peaceiris/actions-gh-pages@v3
+        run: poetry run tox -e docs
+
+      - name: Upload Sphinx doc artifact
+        uses: actions/upload-pages-artifact@v1
         with:
-          personal_token: ${{ secrets.PERSONAL_TOKEN }}
-          publish_dir: ./site
+          path: './docs/build/html'
+      {%- endif %}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1
 
       - name: Build wheels and source tarball
         run: >-
