@@ -31,7 +31,7 @@ except FileNotFoundError:
 # -- Project information -----------------------------------------------------
 
 project = "{{ cookiecutter.project_slug }}"
-copyright = "{% now 'local' %}, {{ cookiecutter.full_name }}"
+copyright = "{% now 'local', '%Y' %}, {{ cookiecutter.full_name }}"
 author = "{{ cookiecutter.full_name }}"
 
 # The full version, including alpha/beta/rc tags
