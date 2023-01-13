@@ -40,8 +40,8 @@
 
     [tool.poetry.urls]
         "Issue Tracker" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
-        "Documentation": "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/"
-        "Changelog": "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/history.html"
+        "Documentation" = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/"
+        "Changelog" = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/history.html"
         "Source" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
 
     [tool.poetry.dependencies]
