@@ -67,7 +67,7 @@ if __name__ == '__main__':
         rename_folder('mkdocstring_docs', 'docs')
     else:
         # remove mkdocstring
-        for remove_me in ['CONTRIBUTING.md', 'mkdocs.yml']:
+        for remove_me in ['mkdocs.yml']:
             remove_file(remove_me)
         remove_folder('mkdocstring_docs')
         rename_folder('sphinx_docs', 'docs')
