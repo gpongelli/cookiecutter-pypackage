@@ -1,3 +1,4 @@
+{% raw -%}
 # Publish package on main branch if it's tagged with '*.*.*'
 
 name: release & publish workflow
@@ -60,7 +61,7 @@ jobs:
 
       - name: build documentation
         run: poetry run tox -e docs
-
+{%- endraw %}
       {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
       - name: Upload mdocs doc artifact
         uses: actions/upload-pages-artifact@v1
@@ -72,7 +73,7 @@ jobs:
         with:
           path: './docs/build/html'
       {%- endif %}
-
+{% raw -%}
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
@@ -103,3 +104,5 @@ jobs:
           user: ${{ secrets.pypi_username }}
           password: ${{ secrets.pypi_password }}
           skip_existing: true
+
+{%- endraw %}

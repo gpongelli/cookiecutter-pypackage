@@ -17,5 +17,5 @@
   "_copy_without_render": ["mkdocstring_docs/changelog.md", "mkdocstring_docs/contributing.md", "mkdocstring_docs/index.md",
       "sphinx_docs/source/authors.rst", "sphinx_docs/source/contributing.rst", "sphinx_docs/source/history.rst",
       "sphinx_docs/source/introduction.rst", "sphinx_docs/source/_templates/custom-class-template.rst",
-      "sphinx_docs/source/_templates/custom-module-template.rst", ".github/workflows/*.yml"]
+      "sphinx_docs/source/_templates/custom-module-template.rst"]
 }
