@@ -5,9 +5,6 @@ name: stage & preview workflow
 
 # Controls when the action will run.
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master, main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -23,6 +20,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
 
       # https://github.com/actions/setup-python/blob/main/docs/advanced-usage.md#caching-packages
       - name: Install Poetry
@@ -41,7 +40,7 @@ jobs:
 
       - name: test with tox
         run:
-          poetry run tox -e py${{ matrix.python-versions }}
+          poetry run tox --skip-pkg-install -e py${{ matrix.python-versions }}
 
       - name: Build wheels and source tarball
         run: |
@@ -50,12 +49,13 @@ jobs:
           poetry build
 
       # https://github.com/pypa/gh-action-pypi-publish
-      - name: publish to Test PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: ${{ secrets.pypi_username }}
-          password: ${{ secrets.pypi_password }}
-          repository_url: https://test.pypi.org/legacy/
-          skip_existing: true
+      # needs separate account
+      #- name: publish to Test PyPI
+      #  uses: pypa/gh-action-pypi-publish@release/v1
+      #  with:
+      #    user: ${{ secrets.pypi_username }}
+      #    password: ${{ secrets.pypi_password }}
+      #    repository_url: https://test.pypi.org/legacy/
+      #    skip_existing: true
 
 {%- endraw %}
