@@ -95,6 +95,18 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
+      - name: Define tox OS name
+        id: tox_os_name
+        run: |
+          if [ ${RUNNER_OS/Linux/} != ${RUNNER_OS} ]; then
+            echo "TOX_OS=lin" >> $GITHUB_OUTPUT
+          elif [ ${RUNNER_OS/Windows/} != "${RUNNER_OS}" ]; then
+            echo "TOX_OS=win" >> $GITHUB_OUTPUT
+          elif [ ${RUNNER_OS/macOS/} != "${RUNNER_OS}" ]; then
+            echo "TOX_OS=mac" >> $GITHUB_OUTPUT
+          fi
+
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
         with:
@@ -137,7 +149,7 @@ jobs:
           CIBW_BUILD: ${{ steps.set_cibuildwheel_build.outputs.cibw_build_version }}
           CIBW_TEST_COMMAND: |
             cd {project}
-            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}
+            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ steps.tox_os_name.outputs.TOX_OS }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ steps.set_cibuildwheel_build.outputs.manylinux_image }}
           CIBW_BEFORE_TEST_LINUX: |
             cd {project}
@@ -145,7 +157,7 @@ jobs:
             cd {project}/check_c && make extract && make build
           CIBW_TEST_COMMAND_LINUX: |
             cd {project}
-            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}
+            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-lin
             poetry env info --path
             cp -f {project}/check_c/runner $(poetry env info --path)/bin
             LD_LIBRARY_PATH={project}/check_c/installed/lib64:$LD_LIBRARY_PATH poetry run runner
@@ -171,7 +183,7 @@ jobs:
         with:
           fail_ci_if_error: true
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./xml_coverage_py${{ matrix.python-version }}.xml
+          files: ./xml_coverage_py${{ matrix.python-version }}-mac.xml
 
   build-sdist:
     needs: pre-checks
