@@ -87,6 +87,12 @@ jobs:
             python-sw: "3.9.16"
           - python-version: "3.8"
             python-sw: "3.8.16"
+          - os: ubuntu-latest
+            tox_os: "lin"
+          - os: windows-latest
+            tox_os: "win"
+          - os: macos-latest
+            tox_os: "mac"
     runs-on: ${{ matrix.os }}
 
     outputs:
@@ -95,18 +101,6 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # https://docs.github.com/en/actions/learn-github-actions/variables#default-environment-variables
-      - name: Define tox OS name
-        id: tox_os_name
-        run: |
-          if [ ${RUNNER_OS/Linux/} != ${RUNNER_OS} ]; then
-            echo "TOX_OS=lin" >> $GITHUB_OUTPUT
-          elif [ ${RUNNER_OS/Windows/} != "${RUNNER_OS}" ]; then
-            echo "TOX_OS=win" >> $GITHUB_OUTPUT
-          elif [ ${RUNNER_OS/macOS/} != "${RUNNER_OS}" ]; then
-            echo "TOX_OS=mac" >> $GITHUB_OUTPUT
-          fi
-
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
         with:
@@ -149,7 +143,7 @@ jobs:
           CIBW_BUILD: ${{ steps.set_cibuildwheel_build.outputs.cibw_build_version }}
           CIBW_TEST_COMMAND: |
             cd {project}
-            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ steps.tox_os_name.outputs.TOX_OS }}
+            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ matrix.tox_os }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ steps.set_cibuildwheel_build.outputs.manylinux_image }}
           CIBW_BEFORE_TEST_LINUX: |
             cd {project}
