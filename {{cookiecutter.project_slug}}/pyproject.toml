@@ -37,7 +37,13 @@
         { include = "{{ cookiecutter.pkg_name }}" },
         { include = "{{ cookiecutter.pkg_name }}/py.typed" },
         { include = "tests", format = "sdist" },
+        # { include = "libs", format = "sdist" },  in case of C extension
     ]
+
+    # in case of C extension
+    #[tool.poetry.build]
+    #    script = "build_extension.py"
+    #    generate-setup-file = true
 
     [tool.poetry.urls]
         "Issue Tracker" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
@@ -218,7 +224,7 @@
 max-line-length=120
 
 [build-system]
-    requires = ["poetry-core>=1.0.0"]
+    requires = ["setuptools", "poetry-core>=1.0.0"]
     build-backend = "poetry.core.masonry.api"
 
 
