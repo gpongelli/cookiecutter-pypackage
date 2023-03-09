@@ -143,6 +143,7 @@ jobs:
           CIBW_BUILD: ${{ steps.set_cibuildwheel_build.outputs.cibw_build_version }}
           CIBW_TEST_COMMAND: |
             cd {project}
+            poetry install --with devel --sync --no-root
             poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ matrix.tox_os }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ steps.set_cibuildwheel_build.outputs.manylinux_image }}
           CIBW_BEFORE_TEST_LINUX: |
@@ -151,6 +152,7 @@ jobs:
             cd {project}/check_c && make extract && make build
           CIBW_TEST_COMMAND_LINUX: |
             cd {project}
+            poetry install --with devel --sync --no-root
             poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-lin
             poetry env info --path
             cp -f {project}/check_c/runner $(poetry env info --path)/bin
