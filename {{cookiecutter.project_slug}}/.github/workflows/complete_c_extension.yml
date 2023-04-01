@@ -32,7 +32,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.11" ]
-        poetry-version: [ "1.3" ]
+        poetry-version: [ "1.4.1" ]
         os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
 
@@ -75,7 +75,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ 3.8, 3.9, "3.10", "3.11" ]
-        poetry-version: [ "1.3" ]
+        poetry-version: [ "1.4.1" ]
         # https://github.com/actions/runner-images list of images
         os: [ ubuntu-latest, windows-latest, macos-latest ]
         include:
@@ -98,6 +98,7 @@ jobs:
     outputs:
       cibw_build_version: ""
       manylinux_image: ""
+      cd_option: ""
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -126,6 +127,13 @@ jobs:
         with:
           platforms: all
 
+      # cd silently fails when moving on different drive in Windows, it needs /d to act correctly
+      # see https://github.com/pypa/cibuildwheel/issues/1448
+      - name: Setup change dir option for windows in cibuildwheel
+        if: runner.os == 'Windows'
+        run: |
+          echo "cd_option=/d" >> $env:GITHUB_ENV
+
       - name: Setting python version for cibuildwheel
         uses: actions/github-script@v6
         id: set_cibuildwheel_build
@@ -141,23 +149,23 @@ jobs:
         uses: pypa/cibuildwheel@v2.12.0
         env:
           CIBW_BUILD: ${{ steps.set_cibuildwheel_build.outputs.cibw_build_version }}
-          CIBW_TEST_COMMAND: |
-            cd {project}
-            poetry install --with devel --sync --no-root
-            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ matrix.tox_os }}
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ steps.set_cibuildwheel_build.outputs.manylinux_image }}
-          CIBW_BEFORE_TEST_LINUX: |
-            cd {project}
-            python3 -m pip install --upgrade pip
+          CIBW_BEFORE_TEST_LINUX: >
+            cd {project} &&
+            python3 -m pip install --upgrade pip &&
             cd {project}/check_c && make extract && make build
-          CIBW_TEST_COMMAND_LINUX: |
-            cd {project}
-            poetry install --with devel --sync --no-root
-            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-lin
-            poetry env info --path
-            cp -f {project}/check_c/runner $(poetry env info --path)/bin
+          CIBW_TEST_COMMAND_LINUX: >
+            cd ${{ env.cd_option }} {project} &&
+            poetry install --with devel --sync --no-root &&
+            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ matrix.tox_os }} &&
+            poetry env info --path &&
+            cp -f {project}/check_c/runner $(poetry env info --path)/bin &&
             LD_LIBRARY_PATH={project}/check_c/installed/lib64:$LD_LIBRARY_PATH poetry run runner
           CIBW_ENVIRONMENT_MACOS: MACOSX_DEPLOYMENT_TARGET="12.0" MACOS_DEPLOYMENT_TARGET="12.0" SYSTEM_VERSION_COMPAT=0
+          CIBW_TEST_COMMAND: >
+            cd ${{ env.cd_option }} {project} &&
+            poetry install --with devel --sync --no-root &&
+            poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-${{ matrix.tox_os }}
 
       - name: show temporary files
         run: |
@@ -187,7 +195,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.11" ]
-        poetry-version: [ "1.3" ]
+        poetry-version: [ "1.4.1" ]
         os: [ windows-latest ]
     runs-on: ${{ matrix.os }}
     steps:
@@ -237,7 +245,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ "3.11" ]
-        poetry-version: [ "1.3" ]
+        poetry-version: [ "1.4.1" ]
         # https://github.com/actions/runner-images list of images
         os: [ ubuntu-latest ]
     runs-on: ${{ matrix.os }}
