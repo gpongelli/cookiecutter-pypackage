@@ -55,10 +55,10 @@
         python = ">=3.9.0,<4.0"
 
         {%- if cookiecutter.command_line_interface|lower == 'click' %}
-        click = "8.0.1"
+        click = "^8.1.7"
         {%- endif %}
         tqdm = "^4.64.0"
-        cloup = "^0.15.1"
+        cloup = "^3.0.3"
         termcolor = "^1.1.0"
 
 
@@ -106,7 +106,7 @@
             wheel = "^0.38.4"
             cibuildwheel = "^2.12.0"
             check-python-versions = "^0.21.2"
-            python-active-versions = "^1.5.0"
+            # python-active-versions = "^1.5.0"
 
 
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
