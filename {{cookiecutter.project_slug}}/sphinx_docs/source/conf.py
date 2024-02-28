@@ -13,9 +13,10 @@
 import os
 import shutil
 import sys
+import tomllib
 from pathlib import Path
 
-from {{ cookiecutter.pkg_name }} import __version__
+from jazz_reports import __version__, __author__
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -30,9 +31,12 @@ except FileNotFoundError:
 
 # -- Project information -----------------------------------------------------
 
-project = "{{ cookiecutter.project_slug }}"
-copyright = "{% now 'local', '%Y' %}, {{ cookiecutter.full_name }}"
-author = "{{ cookiecutter.full_name }}"
+with open(Path.cwd() / '../../pyproject.toml', "rb") as pyproj:
+    pyproject = tomllib.load(pyproj)
+
+project = pyproject['tool']['poetry']['name']
+project_copyright = f"{% now 'local', '%Y' %} - {os.environ['YEAR']}, {__author__}"
+author = __author__
 
 # The full version, including alpha/beta/rc tags
 version = __version__
