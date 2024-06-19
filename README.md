@@ -17,7 +17,7 @@ This tool will create Python project with the following features:
 * [Sphinx](https://www.sphinx-doc.org/en/master/index.html): Writing your docs in RST style, alternative to Mkdocs
 * Testing with [Pytest](https://pytest.org) (unittest is still supported out of the box)
 * Code coverage report and endorsed by [Codecov](https://codecov.io)
-* [Tox](https://tox.readthedocs.io): Test your code against environment matrix, lint and artifact check
+* [Tox](https://tox.readthedocs.io): Test your code against environment matrix, lint and artifact check ; slightly moving to nox
 * Format with [Black](https://github.com/psf/black) and [Isort](https://github.com/PyCQA/isort)
 * Lint code with [Flake8](https://flake8.pycqa.org) and [Flake8-docstrings](https://pypi.org/project/flake8-docstrings/)
 * Lint YAML files with [yamllint](https://github.com/adrienverge/yamllint)
@@ -35,6 +35,7 @@ This tool will create Python project with the following features:
     - publish documents automatically when CI success
     - extract changelog from CHANGELOG and integrate with release notes automatically
 * Host your documentation from [GitHub Pages](https://pages.github.com) with zero-config
+* [Nox](https://nox.thea.codes/en/stable/) to automate environment in place of tox
 
 ## Quickstart
 
