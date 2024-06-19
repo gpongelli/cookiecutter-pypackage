@@ -98,7 +98,9 @@ def lint(session):
 
     session.run("poetry", "install", external=True)
     session.run("poetry", "run", "flake8", "{{ cookiecutter.pkg_name }}", "tests", external=True)
+    {%- if cookiecutter.use_mypy == 'y' %}
     session.run("poetry", "run", "mypy", "--install-types", "{{ cookiecutter.pkg_name }}", "tests", external=True)
+    {%- endif %}
     session.run("poetry", "run", "yamllint", "-f", "colored", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "codespell", "{{ cookiecutter.pkg_name }}", "docs/source", external=True)
     session.run("poetry", "run", "pylint", "{{ cookiecutter.pkg_name }}", external=True)
@@ -122,9 +124,13 @@ def docs(session):
     """Build docs"""
     dev_commands(session)
 
+    {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
+    session.run("poetry", "run", "mkdocs", "build",
+                env={'PY_PKG_YEAR': str(datetime.now().year)}, external=True)
+    {%- else %}
     session.run("poetry", "run", "sphinx-build", "-b", "html", "docs/source/", "docs/build/html",
                 env={'PY_PKG_YEAR': str(datetime.now().year)}, external=True)
-
+    {%- endif %}
 
 @nox.session(python=['3.11'])
 def test(session):
