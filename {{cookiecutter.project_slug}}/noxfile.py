@@ -2,6 +2,14 @@ import nox
 import sys
 from datetime import datetime
 from pathlib import Path
+from python_active_versions.python_active_versions import get_active_python_versions
+from typing import List
+
+
+def _get_active_version(_active_versions: List[dict]) -> List[str]:
+    return [_av['version'] for _av in _active_versions]
+
+_python_versions = _get_active_version(get_active_python_versions())
 
 
 def dev_commands(session):
@@ -132,7 +140,7 @@ def docs(session):
                 env={'PY_PKG_YEAR': str(datetime.now().year)}, external=True)
     {%- endif %}
 
-@nox.session(python=['3.11'])
+@nox.session(python=_python_versions)
 def test(session):
     _plat = sys.platform
 
