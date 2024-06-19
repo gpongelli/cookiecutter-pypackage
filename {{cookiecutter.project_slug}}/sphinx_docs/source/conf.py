@@ -11,9 +11,11 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import shutil
 import sys
+from pathlib import Path
 
-from {{ cookiecutter.pkg_name }} import __version__
+from {{ cookiecutter.pkg_name }} import __version__, __author__, __project_name__
 
 sys.path.insert(0, os.path.abspath("."))
 
@@ -28,9 +30,12 @@ except FileNotFoundError:
 
 # -- Project information -----------------------------------------------------
 
-project = "{{ cookiecutter.project_slug }}"
-copyright = "{% now 'local' %}, {{ cookiecutter.full_name }}"
-author = "{{ cookiecutter.full_name }}"
+with open(Path.cwd() / '../../pyproject.toml', "rb") as pyproj:
+    pyproject = tomllib.load(pyproj)
+
+project = __project_name__
+project_copyright = f"{% now 'local', '%Y' %} - {os.environ['YEAR']}, {__author__}"
+author = __author__
 
 # The full version, including alpha/beta/rc tags
 version = __version__
@@ -53,6 +58,9 @@ extensions = [
     "sphinx.ext.autosummary",
     "m2r2",
 ]
+
+# for inline code into documentation
+pygments_style = 'sphinx'
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary
 

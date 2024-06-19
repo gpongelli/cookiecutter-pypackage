@@ -46,45 +46,42 @@ If you are proposing a feature:
 
 ## Get Started!
 
-Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for local development.
+Ready to contribute? Here's how to set up `{{ cookiecutter.project_slug }}` for local development:
 
 1. Fork the `{{ cookiecutter.project_slug }}` repo on GitHub.
-2. Clone your fork locally
 
-    ```
-    $ git clone git@github.com:your_name_here/{{ cookiecutter.project_slug }}.git
-    ```
+2. Clone your fork locally:
+   ```bash
+   $ git clone git@github.com:your_name_here/{{ cookiecutter.project_slug }}.git
+   ```
 
 3. Ensure [poetry](https://python-poetry.org/docs/) is installed.
-4. Install dependencies and start your virtualenv:
 
-    ```
-    $ poetry update
-    $ poetry install -E test -E doc -E dev
-    ```
+4. Install dependencies and start your virtualenv:
+   ```bash
+   $ poetry update
+   $ poetry install --with devel
+   ```
 
 5. Create a branch for local development:
+   ```bash
+   $ git checkout -b name-of-your-bugfix-or-feature
+   ```
 
-    ```
-    $ git checkout -b name-of-your-bugfix-or-feature
-    ```
-
-    Now you can make your changes locally.
+   Now you can make your changes locally.
 
 6. When you're done making changes, check that your changes pass flake8 and
    tests, including testing other Python versions, with tox:
-
-    ```
-    $ poetry run tox
-    ```
+   ```bash
+   $ poetry run tox -e format -e lint
+   ```
 
 7. Commit your changes and push your branch to GitHub:
-
-    ```
-    $ git add .
-    $ git commit -m "Your detailed description of your changes."
-    $ git push origin name-of-your-bugfix-or-feature
-    ```
+   ```bash
+   $ git add .
+   $ git commit -m "Your detailed description of your changes."
+   $ git push origin name-of-your-bugfix-or-feature
+   ```
 
 8. Submit a pull request through the GitHub website.
 

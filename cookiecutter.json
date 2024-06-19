@@ -8,13 +8,14 @@
   "github_username": "",
   "version": "0.0.0",
   "command_line_interface": ["Click", "No command-line interface"],
-  "open_source_license": ["MIT", "BSD-3-Clause", "ISC", "Apache-2.0", "GPL-3.0-only", "Not open source"],
+  "open_source_license": ["MIT", "BSD-3-Clause", "ISC", "Apache-2.0", "GPL-3.0-only", "GPL-3.0-or-later", "LGPL-3.0-only", "LGPL-3.0-or-later", "Not open source"],
+  "_licenses_url": "https://spdx.org/licenses/",
   "docstrings_style": ["google", "numpy", "pep257"],
   "use_mypy": "y",
   "doc_generator": ["sphinx", "mkdocstring"],
-  "install_precommit_hooks": "y",
+  "install_precommit_hooks": "n",
   "_copy_without_render": ["mkdocstring_docs/changelog.md", "mkdocstring_docs/contributing.md", "mkdocstring_docs/index.md",
       "sphinx_docs/source/authors.rst", "sphinx_docs/source/contributing.rst", "sphinx_docs/source/history.rst",
       "sphinx_docs/source/introduction.rst", "sphinx_docs/source/_templates/custom-class-template.rst",
-      "sphinx_docs/source/_templates/custom-module-template.rst", ".github/workflows/*.yml"]
+      "sphinx_docs/source/_templates/custom-module-template.rst"]
 }

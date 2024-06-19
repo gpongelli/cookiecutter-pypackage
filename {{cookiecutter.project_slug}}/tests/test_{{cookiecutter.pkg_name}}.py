@@ -5,7 +5,7 @@ import pytest
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 from click.testing import CliRunner
 
-from {{ cookiecutter.pkg_name }} import cli
+from {{ cookiecutter.pkg_name }}.cli_tools import cli
 {%- endif %}
 
 
@@ -20,7 +20,11 @@ def response():
 
 
 def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
+    """Sample pytest test function with the pytest fixture as an argument.
+
+    Arguments:
+        response: pytest feature
+    """
     # from bs4 import BeautifulSoup
     # assert 'GitHub' in BeautifulSoup(response.content).title.string
     del response
@@ -40,6 +44,7 @@ def test_command_line_interface():
 
 
 def test_py_version():
+    """Dummy test to print python version used by pytest."""
     import sys
     print(f"in TEST: {sys.version}  -- {sys.version_info}")
     # if sys.version_info <= (3, 9, 18):
