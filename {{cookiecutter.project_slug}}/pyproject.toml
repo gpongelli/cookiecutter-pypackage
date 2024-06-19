@@ -106,7 +106,11 @@
             wheel = "^0.38.4"
             cibuildwheel = "^2.12.0"
             check-python-versions = "^0.21.2"
-            # python-active-versions = "^1.5.0"
+            # python-active-versions = "^1.9.1"
+            icecream = "^2.1.3"
+            pyinstaller = "^6.5.0"
+            nox = "^2024.3.2"
+            ruff = "^0.1.13"
 
 
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
