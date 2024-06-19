@@ -9,6 +9,7 @@ from typing import List
 def _get_active_version(_active_versions: List[dict]) -> List[str]:
     return [_av['version'] for _av in _active_versions]
 
+
 _python_versions = _get_active_version(get_active_python_versions())
 
 
@@ -139,6 +140,7 @@ def docs(session):
     session.run("poetry", "run", "sphinx-build", "-b", "html", "docs/source/", "docs/build/html",
                 env={'PY_PKG_YEAR': str(datetime.now().year)}, external=True)
     {%- endif %}
+
 
 @nox.session(python=_python_versions)
 def test(session):
