@@ -208,7 +208,7 @@ def container_build(session):
         "podman",
         "build",
         "-t",
-        f"{{{{ cookiecutter.pkg_name }}}}:{__version__}",
+        f"{{ cookiecutter.project_slug }}:{__version__}",
         f"--build-arg=PKG_VERSION={__version__}",
         ".",
         external=True,
