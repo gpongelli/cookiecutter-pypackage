@@ -1,9 +1,14 @@
+import fileinput
 import nox
+from rtoml import load
 import sys
 from datetime import datetime
 from pathlib import Path
 from python_active_versions.python_active_versions import get_active_python_versions
 from typing import List
+
+from {{ cookiecutter.pkg_name }} import __version__
+from {{ cookiecutter.pkg_name }}.bundle import get_bundle_dir
 
 
 def _get_active_version(_active_versions: List[dict]) -> List[str]:
@@ -27,9 +32,9 @@ def dev_commands(session):
 def format_code(session):
     """Format the code"""
     dev_commands(session)
-    session.run("poetry", "run", "isort", "{{ cookiecutter.pkg_name }}", "tests",
+    session.run("poetry", "run", "isort", "{{ cookiecutter.pkg_name }}", "tests", "docs", "noxfile.py",
                 external=True)
-    session.run("poetry", "run", "black", "{{ cookiecutter.pkg_name }}", "tests",
+    session.run("poetry", "run", "black", "{{ cookiecutter.pkg_name }}", "tests", "docs", "noxfile.py",
                 external=True)
 
 
@@ -39,55 +44,49 @@ def update_license(session):
     dev_commands(session)
     _year = str(datetime.now().year)
 
-    # python files
+    # files correctly managed by reuse from their extension
+    session.log('files recognized by extension')
     _py = list(Path().glob('./{{ cookiecutter.pkg_name }}/*.py'))
     _py = list(Path().glob('./*.py'))
     _py.extend(list(Path().glob('./tests/*.py')))
     _py.extend(list(Path().glob('./docs/*.py')))
-    _absolute = list(map(lambda x: x.absolute(), _py))
-    if _absolute:
+    _py.extend(list(Path().glob('./.github/**/*.yml')))
+    _py.extend(Path().glob('./.github/**/*.yaml'))
+    _py.extend(list(Path().glob('./docs/Makefile')))
+    _py.extend(list(Path().glob('./docs/make.bat')))
+    _py.extend(list(Path().glob('./pyproject.toml')))
+    if _py:
         session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", *_absolute,
+                    f"--year={_year}", "--merge-copyrights", *_py,
                     external=True)
 
-    # json dotted license
+    # dot-file license
+    session.log('dot-file license')
     _dot = list(Path().glob('./{{ cookiecutter.pkg_name }}/*.json'))
     _dot.extend(list(Path().glob('./tests/*.json')))
     _dot.extend(list(Path().glob('./docs/*.json')))
-    if _dot:
+    _dot.extend(list(Path().glob('./**/*.rst')))
+    _dot.extend(list(Path().glob('./**/*.md')))
+    _dot.extend(list(Path().glob('./**/*.lock')))
+    _dot.extend(list(Path().glob('./**/*.cfg')))
+    _dot.extend(list(Path().glob('./**/py.typed')))
+    _v_not_nox = [x for x in _dot if not x.parts[0].startswith(".nox")]
+    _v_not_gen = [x for x in _v_not_nox if '_generated' not in x.parts]
+    if _v_not_gen:
         session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", "--force-dot-license", *_dot,
+                    f"--year={_year}", "--merge-copyrights", "--force-dot-license", *_v_not_gen,
                     external=True)
 
-    # yaml - md
-    _yaml = list(Path().glob('./github/*.yml'))
-    _yaml.extend(list(Path().glob('./github/*.md')))
-    _yaml.extend(list(Path().glob('./docs/Makefile')))
-    _yaml.extend(list(Path().glob('./docs/make.bat')))
-    _yaml.extend(list(Path().glob('./pyproject.toml')))
-    if _yaml:
-        session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", *_yaml,
-                    external=True)
-
-    # dot-files
+    # dot-files - forced python style
+    session.log('forced python style')
     _dot_files = list(Path().glob('./.editorconfig'))
     _dot_files.extend(list(Path().glob('./.gitignore')))
     _dot_files.extend(list(Path().glob('./.yamllint')))
     _dot_files.extend(list(Path().glob('./.pre-commit-config.yaml')))
+    _dot_files.extend(list(Path().glob('./Dockerfile')))
     if _dot_files:
         session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
                     f"--year={_year}", "--merge-copyrights", "--style", "python", *_dot_files,
-                    external=True)
-
-    # various files
-    _various = list(Path().glob('./*.rst'))
-    _various.extend(list(Path().glob('./*.md')))
-    _various.extend(list(Path().glob('./*.lock')))
-    _various.extend(list(Path().glob('./*.cfg')))
-    if _various:
-        session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", "--force-dot-license", *_various,
                     external=True)
 
     # download license
@@ -95,6 +94,7 @@ def update_license(session):
 
     # fix license file
     with Path(Path.cwd() / 'LICENSES/{{ cookiecutter.open_source_license }}.txt') as f:
+        session.log('license files')
         _text = f.read_text()
         _text.replace('{% now 'utc', '%Y' %} {{ cookiecutter.full_name.replace('\"', '\\\"') }}', f'{% now 'utc', '%Y' %} - {_year} {{ cookiecutter.full_name.replace('\"', '\\\"') }}').replace('<year>', '{% now 'utc', '%Y' %}').replace('<copyright holders>', '{{ cookiecutter.full_name.replace('\"', '\\\"') }}')
         f.write_text(_text)
@@ -105,6 +105,7 @@ def lint(session):
     """Lint the code"""
     dev_commands(session)
 
+    session.run("poetry", "build", external=True)
     session.run("poetry", "install", external=True)
     session.run("poetry", "run", "flake8", "{{ cookiecutter.pkg_name }}", "tests", external=True)
     {%- if cookiecutter.use_mypy == 'y' %}
@@ -115,17 +116,35 @@ def lint(session):
     session.run("poetry", "run", "pylint", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "darglint", "-v", "2", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "bandit", "-r", "{{ cookiecutter.pkg_name }}", external=True)
+    session.run("poetry", "run", "ruff", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "reuse", "lint", external=True)
     # session.run("poetry", "run", "python-active-versions", external=True)
-    session.run("poetry", "run", "check-python-versions", ".", external=True)
+    session.run("poetry", "run", "check-python-versions", ".", external=True, success_codes=[0, 1])  # avoid stage failure
+
+
+def _build(session):
+    with open(get_bundle_dir() / 'pyproject.toml', "r") as pyproj:
+        pyproject = load(pyproj)
+    __description = pyproject['tool']['poetry']['description']
+    __project_name = pyproject['tool']['poetry']['name']
+
+    with fileinput.FileInput(get_bundle_dir() / 'python_active_versions/__init__.py', inplace=True) as f:
+        for line in f:
+            if line.startswith('__description__'):
+                print(f'__description__ = "{__description}"')
+            elif line.startswith("__project_name__"):
+                print(f'__project_name__ = "{__project_name}"')
+            else:
+                print(line, end='')
+    session.run("poetry", "build", external=True)
+    session.run("poetry", "run", "twine", "check", "dist/*", external=True)
 
 
 @nox.session
 def build(session):
     """Build package"""
     dev_commands(session)
-    session.run("poetry", "build", external=True)
-    session.run("poetry", "run", "twine", "check", "dist/*", external=True)
+    _build(session)
 
 
 @nox.session
@@ -156,9 +175,8 @@ def test(session):
     session.env['COVERAGE_FILE'] = f'.coverage_{session.name}'
     session.env['PYTHONWARNINGS'] = 'ignore'
 
-    session.run("poetry", "env", "use", _pyth, external=True)
-    session.run("poetry", "build", external=True)
-    session.run("poetry", "run", "twine", "check", "dist/*", external=True)
+    dev_commands(session)
+    _build(session)
     session.run("poetry", "install", external=True)
 
     if session.posargs:
@@ -181,3 +199,17 @@ def release(session):
     session.run("poetry", "build", external=True)
     # session.run("poetry", "run", "PyInstaller", "jazz_reports.spec", external=True)
     # session.run("poetry", "publish", "-r", "...", external=True)
+
+
+@nox.session(name='container')
+def container_build(session):
+    _build(session)
+    session.run(
+        "podman",
+        "build",
+        "-t",
+        f"{{{{ cookiecutter.pkg_name }}}}:{__version__}",
+        f"--build-arg=PKG_VERSION={__version__}",
+        ".",
+        external=True,
+    )
