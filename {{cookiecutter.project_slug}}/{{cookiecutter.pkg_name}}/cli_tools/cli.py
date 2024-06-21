@@ -2,7 +2,7 @@
 
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 import click
-from {{ cookiecutter.pkg_name }} import __version__
+from {{ cookiecutter.pkg_name }} import __description__, __version__, __project_name__
 
 
 @click.command()
@@ -15,5 +15,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()  # pragma: no cover
+    main(prog_name=__project_name__)  # pragma: no cover
 {%- endif %}
