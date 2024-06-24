@@ -90,7 +90,7 @@ def update_license(session):
                     external=True)
 
     # download license
-    session.run("poetry", "run", "reuse", "download", "--all")
+    session.run("poetry", "run", "reuse", "download", "--all", external=True)
 
     # fix license file
     _creation_year = "{% now 'utc', '%Y' %}"
