@@ -99,7 +99,7 @@ def update_license(session):
         (r"<copyright holders>", "Gabriele Pongelli"),
         (r"20[0-9]{2} - 20[0-9]{2}", f"{_creation_year} - {_year}"),
     ]
-    _license_file = Path.cwd() / 'LICENSES/{{ cookiecutter.open_source_license }}.txt'
+    _license_file = get_bundle_dir() / 'LICENSES/{{ cookiecutter.open_source_license }}.txt'
     with _license_file as f:
         session.log('license files')
         _text = f.read_text()
