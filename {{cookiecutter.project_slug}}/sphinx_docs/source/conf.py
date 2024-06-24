@@ -30,9 +30,6 @@ except FileNotFoundError:
 
 # -- Project information -----------------------------------------------------
 
-with open(Path.cwd() / '../../pyproject.toml', "rb") as pyproj:
-    pyproject = tomllib.load(pyproj)
-
 project = __project_name__
 project_copyright = f"{% now 'local', '%Y' %} - {os.environ['YEAR']}, {__author__}"
 author = __author__
