@@ -31,7 +31,7 @@ except FileNotFoundError:
 # -- Project information -----------------------------------------------------
 
 project = __project_name__
-project_copyright = f"{% now 'local', '%Y' %} - {os.environ['YEAR']}, {__author__}"
+project_copyright = f"{% now 'local', '%Y' %} - {os.environ['PY_PKG_YEAR']}, {__author__}"
 author = __author__
 
 # The full version, including alpha/beta/rc tags
