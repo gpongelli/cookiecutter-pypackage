@@ -93,10 +93,22 @@ def update_license(session):
     session.run("poetry", "run", "reuse", "download", "--all")
 
     # fix license file
-    with Path(Path.cwd() / 'LICENSES/{{ cookiecutter.open_source_license }}.txt') as f:
+    _creation_year = "{% now 'utc', '%Y' %}"
+    REGEX_REPLACEMENTS = [
+        (r"<year>", f"{_creation_year}"),
+        (r"<copyright holders>", "Gabriele Pongelli"),
+        (r"20[0-9]{2} - 20[0-9]{2}", f"{_creation_year} - {_year}"),
+    ]
+    _license_file = Path.cwd() / 'LICENSES/{{ cookiecutter.open_source_license }}.txt'
+    with _license_file as f:
         session.log('license files')
         _text = f.read_text()
-        _text.replace('{% now 'utc', '%Y' %} {{ cookiecutter.full_name.replace('\"', '\\\"') }}', f'{% now 'utc', '%Y' %} - {_year} {{ cookiecutter.full_name.replace('\"', '\\\"') }}').replace('<year>', '{% now 'utc', '%Y' %}').replace('<copyright holders>', '{{ cookiecutter.full_name.replace('\"', '\\\"') }}')
+        for old, new in REGEX_REPLACEMENTS:
+            _text = sub(old, new, _text)
+
+        if (_year not in _text) and (f"{_creation_year} - " not in _text):
+            _text = sub(f"{_creation_year}", f"{_creation_year} - {_year}", _text)
+
         f.write_text(_text)
 
 
