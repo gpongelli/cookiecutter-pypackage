@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 """Tests for `{{ cookiecutter.pkg_name }}` package."""
 
+import logging 
+
 import pytest
 {% if cookiecutter.command_line_interface|lower == 'click' -%}
 from click.testing import CliRunner
 
 from {{ cookiecutter.pkg_name }}.cli_tools import cli
 {%- endif %}
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
@@ -47,7 +51,7 @@ def test_command_line_interface():
 def test_py_version():
     """Dummy test to print python version used by pytest."""
     import sys
-    print(f"in TEST: {sys.version}  -- {sys.version_info}")
+    logger.info(f"in TEST: {sys.version}  -- {sys.version_info}")
     # if sys.version_info <= (3, 9, 18):
     #     # 3.9 OK
     #     assert True
