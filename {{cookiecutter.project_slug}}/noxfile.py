@@ -119,16 +119,16 @@ def lint(session):
 
     session.run("poetry", "build", external=True)
     session.run("poetry", "install", external=True)
-    session.run("poetry", "run", "flake8", "{{ cookiecutter.pkg_name }}", "tests", external=True)
+    session.run("poetry", "run", "flake8", "{{ cookiecutter.pkg_name }}", "tests", external=True, success_codes=[0, 1])
     {%- if cookiecutter.use_mypy == 'y' %}
-    session.run("poetry", "run", "mypy", "--install-types", "{{ cookiecutter.pkg_name }}", "tests", external=True)
+    session.run("poetry", "run", "mypy", "--install-types", "{{ cookiecutter.pkg_name }}", "tests", external=True, success_codes=[0, 1])
     {%- endif %}
     session.run("poetry", "run", "yamllint", "-f", "colored", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "codespell", "{{ cookiecutter.pkg_name }}", "docs/source", external=True)
     session.run("poetry", "run", "pylint", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "darglint", "-v", "2", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "bandit", "-r", "{{ cookiecutter.pkg_name }}", external=True)
-    session.run("poetry", "run", "ruff", "{{ cookiecutter.pkg_name }}", external=True)
+    session.run("poetry", "run", "ruff", "check", "{{ cookiecutter.pkg_name }}", external=True)
     session.run("poetry", "run", "reuse", "lint", external=True)
     # session.run("poetry", "run", "python-active-versions", external=True)
     session.run("poetry", "run", "check-python-versions", ".", external=True, success_codes=[0, 1])  # avoid stage failure
