@@ -38,7 +38,7 @@ def format_code(session):
                 external=True)
 
 
-@nox.session
+@nox.session(name="license")
 def update_license(session):
     """License files according to REUSE 3.0"""
     dev_commands(session)
@@ -46,10 +46,10 @@ def update_license(session):
 
     # files correctly managed by reuse from their extension
     session.log('files recognized by extension')
-    _py = list(Path().glob('./{{ cookiecutter.pkg_name }}/*.py'))
+    _py = list(Path().glob('./{{ cookiecutter.pkg_name }}/**/*.py'))
     _py = list(Path().glob('./*.py'))
-    _py.extend(list(Path().glob('./tests/*.py')))
-    _py.extend(list(Path().glob('./docs/*.py')))
+    _py.extend(list(Path().glob('./tests/**/*.py')))
+    _py.extend(list(Path().glob('./docs/**/*.py')))
     _py.extend(list(Path().glob('./.github/**/*.yml')))
     _py.extend(Path().glob('./.github/**/*.yaml'))
     _py.extend(list(Path().glob('./docs/Makefile')))
@@ -62,9 +62,9 @@ def update_license(session):
 
     # dot-file license
     session.log('dot-file license')
-    _dot = list(Path().glob('./{{ cookiecutter.pkg_name }}/*.json'))
-    _dot.extend(list(Path().glob('./tests/*.json')))
-    _dot.extend(list(Path().glob('./docs/*.json')))
+    _dot = list(Path().glob('./{{ cookiecutter.pkg_name }}/**/*.json'))
+    _dot.extend(list(Path().glob('./tests/**/*.json')))
+    _dot.extend(list(Path().glob('./docs/**/*.json')))
     _dot.extend(list(Path().glob('./**/*.rst')))
     _dot.extend(list(Path().glob('./**/*.md')))
     _dot.extend(list(Path().glob('./**/*.lock')))
@@ -196,7 +196,7 @@ def test(session):
         test_files = session.posargs
     else:
         # call nox without arguments
-        test_files = list(Path().glob('./tests/*.py'))
+        test_files = list(Path().glob('./tests/**/*.py'))
 
     session.run('poetry', 'run', 'pytest', *test_files, f"--cov-report=html:html_coverage_{session.name}",
                 f"--cov-report=xml:xml_coverage_{session.name}.xml", external=True)
