@@ -1,0 +1,18 @@
+failure-threshold: info
+
+strict-labels: true
+label-schema:
+  org.opencontainers.image.authors: text
+  org.opencontainers.image.created: text
+  org.opencontainers.image.version: text
+  org.opencontainers.image.licenses: spdx
+  org.opencontainers.image.documentation: url
+  org.opencontainers.image.source: url
+  org.opencontainers.image.revision: text
+  org.opencontainers.image.description: text
+  org.opencontainers.image.url: url
+
+trustedRegistries:
+  - docker.io
+  - "*.gcr.io"
+  - quay.io
