@@ -99,6 +99,7 @@ def update_license(session):
     _dot_files.extend(list(Path().glob('./.gitignore')))
     _dot_files.extend(list(Path().glob('./.yamllint')))
     _dot_files.extend(list(Path().glob('./.pre-commit-config.yaml')))
+    _dot_files.extend(list(Path().glob('./hadolint.yaml')))
     _dot_files.extend(list(Path().glob('./Dockerfile')))
     if _dot_files:
         session.run("poetry",
