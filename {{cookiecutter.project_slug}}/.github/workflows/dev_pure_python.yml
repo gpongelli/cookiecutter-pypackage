@@ -59,27 +59,27 @@ jobs:
       #    pip install poetry tox tox-gh-actions
 
       - name: build documentation
-        run: poetry run tox --skip-pkg-install -e docs
+        run: poetry run nox -e docs
 
-      - name: linter checks with tox
+      - name: linter checks with nox
         run:
-          poetry run tox --skip-pkg-install -e lint
+          poetry run nox -e lint
 
       # https://docs.github.com/en/actions/learn-github-actions/contexts#runner-context
-      - name: test with tox - Windows
+      - name: test with nox - Windows
         if: runner.os == 'Windows'
         run:
-          poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-win
+          poetry run nox -e py${{ matrix.python-version }}-win
 
-      - name: test with tox - Linux
+      - name: test with nox - Linux
         if: runner.os == 'Linux'
         run:
-          poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-lin
+          poetry run nox -e py${{ matrix.python-version }}-lin
 
-      - name: test with tox - MacOS
+      - name: test with nox - MacOS
         if: runner.os == 'macOS'
         run:
-          poetry run tox --skip-pkg-install -e py${{ matrix.python-version }}-mac
+          poetry run nox -e py${{ matrix.python-version }}-mac
 
       - name: list files
         run: ls -l .
@@ -135,7 +135,7 @@ jobs:
         uses: actions/configure-pages@v2
 
       - name: build documentation
-        run: poetry run tox --skip-pkg-install -e docs
+        run: poetry run nox -e docs
 
 {%- endraw %}
       {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}

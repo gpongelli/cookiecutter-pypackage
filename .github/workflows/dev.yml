@@ -41,9 +41,9 @@ jobs:
           poetry install --with devel
       #    pip install poetry tox tox-gh-actions
 
-      - name: test with tox
+      - name: test with nox
         run:
-          poetry run tox -e py${{ matrix.python-versions }}
+          poetry run nox -e py${{ matrix.python-versions }}
 
       - name: list files
         run: ls -l .

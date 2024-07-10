@@ -58,12 +58,12 @@ jobs:
           python -m pip install --upgrade pip
           poetry install --with devel --sync --no-root
 
-      - name: Lint checks with tox
+      - name: Lint checks with nox
         run:
-          poetry run tox --skip-pkg-install -e lint
+          poetry run nox -e lint
 
       - name: Build and check documentation
-        run: poetry run tox --skip-pkg-install -e docs
+        run: poetry run nox -e docs
 
 
   build-test:
@@ -284,7 +284,7 @@ jobs:
         uses: actions/configure-pages@v2
 
       - name: build documentation
-        run: poetry run tox --skip-pkg-install -e docs
+        run: poetry run nox -e docs
 
 {%- endraw %}
       {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}

@@ -57,7 +57,7 @@ jobs:
         uses: actions/configure-pages@v2
 
       - name: build documentation
-        run: poetry run tox --skip-pkg-install -e docs
+        run: poetry run nox -e docs
 {%- endraw %}
 
       {%- if 'mkdocs' in cookiecutter.doc_generator|lower %}
