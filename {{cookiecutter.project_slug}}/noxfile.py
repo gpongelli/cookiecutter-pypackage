@@ -56,8 +56,15 @@ def update_license(session):
     _py.extend(list(Path().glob('./docs/make.bat')))
     _py.extend(list(Path().glob('./pyproject.toml')))
     if _py:
-        session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", *_py,
+        session.run("poetry",
+                    "run",
+                    "reuse",
+                    "annotate",
+                    "--license={{ cookiecutter.open_source_license }}",
+                    "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
+                    f"--year={_year}",
+                    "--merge-copyrights",
+                    *_py,
                     external=True)
 
     # dot-file license
@@ -74,8 +81,16 @@ def update_license(session):
     _v_not_nox = [x for x in _dot if not x.parts[0].startswith(".nox")]
     _v_not_gen = [x for x in _v_not_nox if '_generated' not in x.parts]
     if _v_not_gen:
-        session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", "--force-dot-license", *_v_not_gen,
+        session.run("poetry",
+                    "run",
+                    "reuse",
+                    "annotate",
+                    "--license={{ cookiecutter.open_source_license }}",
+                    "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
+                    f"--year={_year}",
+                    "--merge-copyrights",
+                    "--force-dot-license",
+                    *_v_not_gen,
                     external=True)
 
     # dot-files - forced python style
@@ -86,8 +101,17 @@ def update_license(session):
     _dot_files.extend(list(Path().glob('./.pre-commit-config.yaml')))
     _dot_files.extend(list(Path().glob('./Dockerfile')))
     if _dot_files:
-        session.run("poetry", "run", "reuse", "annotate", "--license={{ cookiecutter.open_source_license }}", "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
-                    f"--year={_year}", "--merge-copyrights", "--style", "python", *_dot_files,
+        session.run("poetry",
+                    "run",
+                    "reuse",
+                    "annotate",
+                    "--license={{ cookiecutter.open_source_license }}",
+                    "--copyright={{ cookiecutter.full_name.replace('\"', '\\\"') }}",
+                    f"--year={_year}",
+                    "--merge-copyrights",
+                    "--style",
+                    "python",
+                    *_dot_files,
                     external=True)
 
     # download license
@@ -116,9 +140,8 @@ def update_license(session):
 @nox.session
 def lint(session):
     """Lint the code"""
-    dev_commands(session)
+    build(session)
 
-    session.run("poetry", "build", external=True)
     session.run("poetry", "install", external=True)
     session.run("poetry", "run", "flake8", "{{ cookiecutter.pkg_name }}", "tests", external=True, success_codes=[0, 1])
     {%- if cookiecutter.use_mypy == 'y' %}
@@ -135,13 +158,25 @@ def lint(session):
     session.run("poetry", "run", "check-python-versions", ".", external=True, success_codes=[0, 1])  # avoid stage failure
 
 
-def _build(session):
+def _gather_pyproject_data():
     with open(get_bundle_dir() / 'pyproject.toml', "r") as pyproj:
         pyproject = load(pyproj)
-    __description = pyproject['tool']['poetry']['description']
-    __project_name = pyproject['tool']['poetry']['name']
+    return {
+        'description': pyproject['tool']['poetry']['description'],
+        'project_name': pyproject['tool']['poetry']['name'],
+        'source': pyproject['tool']['poetry']['repository'],
+        'doc': pyproject['tool']['poetry']['documentation'],
+        'license': pyproject['tool']['poetry']['license'],
+        'authors': ', '.join(pyproject['tool']['poetry']['authors']),
+    }
 
-    with fileinput.FileInput(get_bundle_dir() / 'python_active_versions/__init__.py', inplace=True) as f:
+
+def _build(session):
+    _d = _gather_pyproject_data()
+    __description = _d['description']
+    __project_name = _d['project_name']
+
+    with fileinput.FileInput(get_bundle_dir() / '{{ cookiecutter.pkg_name }}/__init__.py', inplace=True) as f:
         for line in f:
             if line.startswith('__description__'):
                 print(f'__description__ = "{__description}"')
@@ -188,8 +223,9 @@ def test(session):
     session.env['COVERAGE_FILE'] = f'.coverage_{session.name}'
     session.env['PYTHONWARNINGS'] = 'ignore'
 
-    dev_commands(session)
-    _build(session)
+    session.run("poetry", "env", "use", _pyth, external=True)
+
+    build(session)
     session.run("poetry", "install", external=True)
 
     if session.posargs:
@@ -199,8 +235,15 @@ def test(session):
         # call nox without arguments
         test_files = list(Path().glob('./tests/**/*.py'))
 
-    session.run('poetry', 'run', 'pytest', *test_files, f"--cov-report=html:html_coverage_{session.name}",
-                f"--cov-report=xml:xml_coverage_{session.name}.xml", external=True)
+    session.run(
+        'poetry',
+        'run',
+        'pytest',
+        *test_files,
+        f"--cov-report=html:html_coverage_{session.name}",
+        f"--cov-report=xml:xml_coverage_{session.name}.xml",
+        external=True
+    )
 
 
 @nox.session
@@ -209,20 +252,51 @@ def release(session):
     dev_commands(session)
 
     session.run("poetry", "run", "cz", "-nr", "3", "bump", "--changelog", "--yes", external=True)
-    session.run("poetry", "build", external=True)
+    _build(session)
     # session.run("poetry", "run", "PyInstaller", "jazz_reports.spec", external=True)
     # session.run("poetry", "publish", "-r", "...", external=True)
 
 
 @nox.session(name='container')
 def container_build(session):
-    _build(session)
+    _d = _gather_pyproject_data()
+
+    git_hash = session.run(
+        "poetry", "run", "git", "rev-parse", "HEAD",
+        external=True, silent=True
+    )
+
+    session.run(
+        "podman",
+        "run",
+        "--rm",
+        "-it",
+        "-v",
+        "Dockerfile:/Dockerfile",
+        "-v",
+        "hadolint.yaml:/hadolint.yaml",
+        "ghcr.io/hadolint/hadolint",
+        "hadolint",
+        "--config",
+        "/hadolint.yaml",
+        "/Dockerfile",
+        external=True,
+    )
+
     session.run(
         "podman",
         "build",
         "-t",
         f"{{ cookiecutter.project_slug }}:{__version__}",
+        f"--build-arg=IMAGE_TIMESTAMP={datetime.now(timezone.utc).isoformat()}",
+        f"--build-arg=IMAGE_AUTHORS={_d['authors']}",
         f"--build-arg=PKG_VERSION={__version__}",
+        # f"--build-arg=IMAGE_LICENSE={_d['license']}",
+        # f"--build-arg=IMAGE_DOC={_d['doc']}",
+        # f"--build-arg=IMAGE_SRC={_d['source']}",
+        # f"--build-arg=IMAGE_URL={_d['docker_url']}",
+        f"--build-arg=IMAGE_GIT_HASH={git_hash.strip()}",
+        f"--build-arg=IMAGE_DESCRIPTION={_d['description']}",
         ".",
         external=True,
     )
