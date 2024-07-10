@@ -70,6 +70,7 @@ def update_license(session):
     _dot.extend(list(Path().glob('./**/*.lock')))
     _dot.extend(list(Path().glob('./**/*.cfg')))
     _dot.extend(list(Path().glob('./**/py.typed')))
+    _dot.extend(list(Path().glob('./**/*.sqlite')))
     _v_not_nox = [x for x in _dot if not x.parts[0].startswith(".nox")]
     _v_not_gen = [x for x in _v_not_nox if '_generated' not in x.parts]
     if _v_not_gen:
