@@ -59,6 +59,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m ensurepip --upgrade
+          poetry lock --no-update
           poetry install --with devel --sync
 
       # Build and publish documentation

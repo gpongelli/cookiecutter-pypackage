@@ -55,7 +55,8 @@ jobs:
       # setup poetry environment without install not-yet-built package
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          python -m ensurepip --upgrade
+          poetry lock --no-update
           poetry install --with devel --sync --no-root
 
       - name: Lint checks with nox
