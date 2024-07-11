@@ -2,7 +2,7 @@ import fileinput
 import nox
 from rtoml import load
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from python_active_versions.python_active_versions import get_active_python_versions
 from typing import List
