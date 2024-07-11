@@ -46,6 +46,8 @@ jobs:
           python -m ensurepip --upgrade
           poetry install --with devel  --sync
 
-      - name: build container
-        run: poetry run nox -e container
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@master
+        with:
+          dockerfile: "Dockerfile"
 {%- endraw %}
