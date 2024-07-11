@@ -120,6 +120,29 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+
+      - name: get authors from toml
+        uses: SebRollen/toml-action@v1.2.0
+        id: read_toml_authors
+        with:
+          file: 'pyproject.toml'
+          field: 'tool.poetry.authors'
+
+      - name: get description from toml
+        uses: SebRollen/toml-action@v1.2.0
+        id: read_toml_descr
+        with:
+          file: 'pyproject.toml'
+          field: 'tool.poetry.description'
+
+      - name: Get Timestamp
+        uses: nanzm/get-time-action@master
+        id: build_timestamp
+        with:
+          timeZone: UTC
+          format: 'YYYY-MM-DDTHH:mm:ssZ'
+
+
       # in case of static docker image building, https://github.com/marketplace/actions/docker-build-push-action
       #  github action is better  ( https://github.com/docker/build-push-action )
       - name: Build and push
@@ -127,7 +150,11 @@ jobs:
         with:
           push: true
           build-args: |
+              IMAGE_TIMESTAMP=${{ steps.build_timestamp.outputs.time }}
+              IMAGE_AUTHORS=${{ steps.read_toml_authors.outputs.value }}
               PKG_VERSION=${{ github.ref_name }}
+              IMAGE_GIT_HASH=${{ github.sha }}
+              IMAGE_DESCRIPTION=${{ steps.read_toml_descr.outputs.value }}
 {%- endraw %}
           tags: {{ cookiecutter.dockerhub_username }}/{{ cookiecutter.project_slug }}:{% raw -%}${{ github.ref_name }}
 
