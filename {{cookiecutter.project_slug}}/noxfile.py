@@ -354,3 +354,14 @@ def container_build(session):
     # "podman run -v /var/run/docker.sock:/var/run/docker.sock -v ./trivy_cache:/root/.cache/
     #   -v ./trivy.yaml:/root/trivy.yaml aquasec/trivy:0.53.0 -c /root/trivy.yaml
     #   image {{ cookiecutter.dockerhub_username }}/{{ cookiecutter.project_slug }}:{__version__}"
+
+    session.run(
+        "podman",
+        "run",
+        "--rm",
+        "-e", "CI=true",
+        "-v", "/var/run/docker.sock:/var/run/docker.sock",
+        "wagoodman/dive:latest",
+        f"{{ cookiecutter.project_slug }}-{__version__}",
+        external=True,
+    )
