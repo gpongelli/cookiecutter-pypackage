@@ -1,0 +1,83 @@
+# https://aquasecurity.github.io/trivy/v0.53/docs/references/configuration/config-file/
+
+timeout: 10m
+format: table
+
+dependency-tree: true
+list-all-pkgs: true
+# exit-code: 1
+
+#severity:
+#  - HIGH
+#  - CRITICAL
+
+image:
+  source:
+    - podman
+    - docker
+
+scan:
+  skip-dirs:
+    - .nox
+    - html_coverage*
+
+#    - /lib64
+#    - /lib
+#    - /usr/lib
+#    - /usr/include
+
+  scanners:
+    - misconfig
+    - license
+    - vuln
+    - secret
+
+vulnerability:
+  type:
+    - os
+    - library
+
+license:
+  # Default is false
+  full: false
+
+  # Default is empty
+  ignored:
+    - MIT
+
+  # Set list of forbidden licenses
+  # Default is https://github.com/aquasecurity/trivy/blob/164b025413c5fb9c6759491e9a306b46b869be93/pkg/licensing/category.go#L171
+  #forbidden:
+  #  - AGPL-1.0
+  #  - AGPL-3.0
+
+  # Set list of restricted licenses
+  # Default is https://github.com/aquasecurity/trivy/blob/164b025413c5fb9c6759491e9a306b46b869be93/pkg/licensing/category.go#L199
+  #restricted:
+  #  - AGPL-1.0
+  #  - AGPL-3.0
+
+  # Set list of reciprocal licenses
+  # Default is https://github.com/aquasecurity/trivy/blob/164b025413c5fb9c6759491e9a306b46b869be93/pkg/licensing/category.go#L238
+  #reciprocal:
+  #  - AGPL-1.0
+  #  - AGPL-3.0
+
+  # Set list of notice licenses
+  # Default is https://github.com/aquasecurity/trivy/blob/164b025413c5fb9c6759491e9a306b46b869be93/pkg/licensing/category.go#L260
+  #notice:
+  #  - AGPL-1.0
+  #  - AGPL-3.0
+
+  # Set list of permissive licenses
+  # Default is empty
+  #permissive:
+  #  - AGPL-1.0
+  #  - AGPL-3.0
+
+  # Set list of unencumbered licenses
+  # Default is https://github.com/aquasecurity/trivy/blob/164b025413c5fb9c6759491e9a306b46b869be93/pkg/licensing/category.go#L334
+  #unencumbered:
+  #  - AGPL-1.0
+  #  - AGPL-3.0
+

@@ -1,0 +1,3 @@
+# SPDX-FileCopyrightText: {% now 'utc', '%Y' %} {{ cookiecutter.full_name.replace('\"', '\\\"') }}
+#
+# SPDX-License-Identifier: {{ cookiecutter.open_source_license }}

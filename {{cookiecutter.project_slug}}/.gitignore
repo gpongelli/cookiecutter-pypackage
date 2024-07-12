@@ -116,3 +116,5 @@ site/
 
 # httpcache sqlite file
 /**/*.sqlite
+
+trivy_cache/
