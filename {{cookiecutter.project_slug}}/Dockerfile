@@ -6,6 +6,10 @@ FROM python:3.12-slim as base
 ARG IMAGE_TIMESTAMP
 ARG IMAGE_AUTHORS
 ARG PKG_VERSION
+ARG IMAGE_LICENSE
+ARG IMAGE_DOC
+ARG IMAGE_SRC
+ARG IMAGE_URL
 ARG IMAGE_GIT_HASH
 ARG IMAGE_DESCRIPTION
 
@@ -14,10 +18,10 @@ ARG IMAGE_DESCRIPTION
 LABEL org.opencontainers.image.created="${IMAGE_TIMESTAMP}"
 LABEL org.opencontainers.image.authors="${IMAGE_AUTHORS}"
 LABEL org.opencontainers.image.version="${PKG_VERSION}"
-LABEL org.opencontainers.image.licenses={{ cookiecutter.open_source_license }}
-LABEL org.opencontainers.image.documentation="https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/"
-LABEL org.opencontainers.image.source="https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
-LABEL org.opencontainers.image.url="https://hub.docker.com/r/{{ cookiecutter.dockerhub_username }}/{{ cookiecutter.project_slug }}"
+LABEL org.opencontainers.image.licenses="${IMAGE_LICENSE}"
+LABEL org.opencontainers.image.documentation="${IMAGE_DOC}"
+LABEL org.opencontainers.image.source="${IMAGE_SRC}"
+LABEL org.opencontainers.image.url="${IMAGE_URL}"
 LABEL org.opencontainers.image.revision="${IMAGE_GIT_HASH}"
 LABEL org.opencontainers.image.description="${IMAGE_DESCRIPTION}"
 
