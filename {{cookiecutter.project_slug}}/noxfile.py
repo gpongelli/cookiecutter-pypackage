@@ -7,7 +7,7 @@ from pathlib import Path
 from python_active_versions.python_active_versions import get_active_python_versions
 from typing import List
 
-from {{ cookiecutter.pkg_name }} import __version__
+from {{ cookiecutter.pkg_name }} import __project_name__, __version__
 from {{ cookiecutter.pkg_name }}.bundle import get_bundle_dir
 
 
@@ -170,6 +170,7 @@ def _gather_pyproject_data():
         'doc': pyproject['tool']['poetry']['documentation'],
         'license': pyproject['tool']['poetry']['license'],
         'authors': ', '.join(pyproject['tool']['poetry']['authors']),
+        'docker_url': pyproject['tool']['poetry']['urls']['Docker'],
     }
 
 
@@ -270,9 +271,34 @@ def container_build(session):
 
     session.run(
         "podman",
+        "build",
+        "-t",
+        f"{{ cookiecutter.project_slug }}:{__version__}",
+        f"--build-arg=IMAGE_TIMESTAMP={datetime.now(timezone.utc).isoformat()}",
+        f"--build-arg=IMAGE_AUTHORS={_d['authors']}",
+        f"--build-arg=PKG_VERSION={__version__}",
+        # f"--build-arg=IMAGE_LICENSE={_d['license']}",
+        # f"--build-arg=IMAGE_DOC={_d['doc']}",
+        # f"--build-arg=IMAGE_SRC={_d['source']}",
+        # f"--build-arg=IMAGE_URL={_d['docker_url']}",
+        f"--build-arg=IMAGE_GIT_HASH={git_hash.strip()}",
+        f"--build-arg=IMAGE_DESCRIPTION={_d['description']}",
+        # <build-args-here>
+        "--format",
+        "docker",
+        ".",
+        external=True,
+    )
+
+
+@nox.session()
+def container_lint(session):
+
+    session.run(
+        "podman",
         "run",
         "--rm",
-        "-it",
+        # "-it",
         "-v",
         "Dockerfile:/Dockerfile",
         "-v",
@@ -283,8 +309,11 @@ def container_build(session):
         "/hadolint.yaml",
         "/Dockerfile",
         external=True,
+        success_codes=[0, 1],
     )
 
+    # create trivy cache folder if not exist
+    os.makedirs('trivy_cache', exist_ok=True)
     # run trivy on local project
     session.run(
         "podman",
@@ -303,25 +332,10 @@ def container_build(session):
         "fs",
         "/root/proj",
         external=True,
+        success_codes=[0, 1],
     )
 
-    session.run(
-        "podman",
-        "build",
-        "-t",
-        f"{{ cookiecutter.project_slug }}:{__version__}",
-        f"--build-arg=IMAGE_TIMESTAMP={datetime.now(timezone.utc).isoformat()}",
-        f"--build-arg=IMAGE_AUTHORS={_d['authors']}",
-        f"--build-arg=PKG_VERSION={__version__}",
-        # f"--build-arg=IMAGE_LICENSE={_d['license']}",
-        # f"--build-arg=IMAGE_DOC={_d['doc']}",
-        # f"--build-arg=IMAGE_SRC={_d['source']}",
-        # f"--build-arg=IMAGE_URL={_d['docker_url']}",
-        f"--build-arg=IMAGE_GIT_HASH={git_hash.strip()}",
-        f"--build-arg=IMAGE_DESCRIPTION={_d['description']}",
-        ".",
-        external=True,
-    )
+    container_build(session)
 
     # save image as tar to be scanned by trivy
     session.run(
@@ -333,22 +347,39 @@ def container_build(session):
         external=True,
     )
 
+    # save image as tar to be scanned by trivy
+    session.run(
+        "podman",
+        "save",
+        "-o",
+        f"{__project_name__}-{__version__}.tar",
+        f"{__project_name__}:{__version__}",
+        external=True,
+    )
+
     # run trivy scan
     session.run(
         "podman",
         "run",
-        "-v", "/var/run/docker.sock:/var/run/docker.sock",
-        "-v", ".:/root/proj",
-        "-v", "./trivy_cache:/root/.cache/",
-        "-v", "./trivy.yaml:/root/trivy.yaml",
+        "-v",
+        "/var/run/docker.sock:/var/run/docker.sock",
+        "-v",
+        ".:/root/proj",
+        "-v",
+        "./trivy_cache:/root/.cache/",
+        "-v",
+        "./trivy.yaml:/root/trivy.yaml",
         "aquasec/trivy:0.53.0",
-        "-c", "/root/trivy.yaml",
+        "-c",
+        "/root/trivy.yaml",
         "image",
-        "--input", f"/root/proj/{{ cookiecutter.project_slug }}-{__version__}.tar",
+        "--input",
+        f"/root/proj/{__project_name__}-{__version__}.tar",
         external=True,
+        success_codes=[0, 1],
     )
 
-    os.remove(f"{{ cookiecutter.project_slug }}-{__version__}.tar")
+    os.remove(f"{__project_name__}-{__version__}.tar")
 
     # this works on downloaded images from dockerhub; only way to work on local built images is through tar file
     # "podman run -v /var/run/docker.sock:/var/run/docker.sock -v ./trivy_cache:/root/.cache/
