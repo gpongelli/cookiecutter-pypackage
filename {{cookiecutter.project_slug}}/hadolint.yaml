@@ -5,12 +5,12 @@ label-schema:
   org.opencontainers.image.authors: text
   org.opencontainers.image.created: text
   org.opencontainers.image.version: text
-  org.opencontainers.image.licenses: spdx
-  org.opencontainers.image.documentation: url
-  org.opencontainers.image.source: url
+  org.opencontainers.image.licenses: text     # dynamic field
+  org.opencontainers.image.documentation: text     # dynamic field
+  org.opencontainers.image.source: text     # dynamic field
   org.opencontainers.image.revision: text
   org.opencontainers.image.description: text
-  org.opencontainers.image.url: url
+  org.opencontainers.image.url: text     # dynamic field
 
 trustedRegistries:
   - docker.io
