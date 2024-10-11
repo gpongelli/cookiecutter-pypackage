@@ -10,6 +10,11 @@ from typing import List
 from {{ cookiecutter.pkg_name }} import __project_name__, __version__
 from {{ cookiecutter.pkg_name }}.bundle import get_bundle_dir
 
+from dotenv import load_dotenv
+
+# load variables from .env file for local build, if any present
+# CI build env vars are passed in different way
+load_dotenv()
 
 def _get_active_version(_active_versions: List[dict]) -> List[str]:
     return [_av['version'] for _av in _active_versions]
