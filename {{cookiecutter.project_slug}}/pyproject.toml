@@ -22,8 +22,6 @@
     {%- endif %}
     readme = "README.md"
     requires-python = ">=3.12"
-    dependencies = [
-    ]
 
     # full classifier list can be found at https://pypi.org/classifiers/
     classifiers=[
