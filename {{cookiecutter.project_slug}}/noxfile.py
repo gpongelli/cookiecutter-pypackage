@@ -12,6 +12,8 @@ from {{ cookiecutter.pkg_name }}.bundle import get_bundle_dir
 
 from dotenv import load_dotenv
 
+from gather_vars import gather_data
+
 # load variables from .env file for local build, if any present
 # CI build env vars are passed in different way
 load_dotenv()
@@ -26,8 +28,8 @@ _python_versions = _get_active_version(get_active_python_versions())
 def dev_commands(session):
     session.run("poetry", "run", "python", "--version", external=True)
     session.run("python", "--version", external=True)
-    session.run("poetry", "lock", "--no-update", external=True)
-    session.run("poetry", "install", "-v", "--with", "devel", "--no-root", "--sync", external=True)
+    session.run("poetry", "lock", external=True)
+    session.run("poetry", "sync", "-v", "--with", "devel", "--no-root", external=True)
     session.run("poetry", "run", "nox", "--version", external=True)
     session.run("poetry", "run", "pip", "--version", external=True)
     session.run("poetry", "run", "pip", "list", "--format=freeze", external=True)
@@ -165,22 +167,8 @@ def lint(session):
     session.run("poetry", "run", "check-python-versions", ".", external=True, success_codes=[0, 1])  # avoid stage failure
 
 
-def _gather_pyproject_data():
-    with open(get_bundle_dir() / 'pyproject.toml', "r") as pyproj:
-        pyproject = load(pyproj)
-    return {
-        'description': pyproject['tool']['poetry']['description'],
-        'project_name': pyproject['tool']['poetry']['name'],
-        'source': pyproject['tool']['poetry']['repository'],
-        'doc': pyproject['tool']['poetry']['documentation'],
-        'license': pyproject['tool']['poetry']['license'],
-        'authors': ', '.join(pyproject['tool']['poetry']['authors']),
-        'docker_url': pyproject['tool']['poetry']['urls']['Docker'],
-    }
-
-
 def _build(session):
-    _d = _gather_pyproject_data()
+    _d = gather_data('useless-in-local-build')
     __description = _d['description']
     __project_name = _d['project_name']
 
@@ -267,28 +255,24 @@ def release(session):
 
 @nox.session(name='container')
 def container_build(session):
-    _d = _gather_pyproject_data()
+    _pyproject_data = gather_data("useless-in-local-build")
 
     git_hash = session.run(
         "poetry", "run", "git", "rev-parse", "HEAD",
         external=True, silent=True
     )
 
+    _podman_args = [f'--build-arg={k}={v}' for k, v in _pyproject_data.items()]
+
     session.run(
         "podman",
         "build",
         "-t",
-        f"{{ cookiecutter.project_slug }}:{__version__}",
-        f"--build-arg=IMAGE_TIMESTAMP={datetime.now(timezone.utc).isoformat()}",
-        f"--build-arg=IMAGE_AUTHORS={_d['authors']}",
-        f"--build-arg=PKG_VERSION={__version__}",
-        # f"--build-arg=IMAGE_LICENSE={_d['license']}",
-        # f"--build-arg=IMAGE_DOC={_d['doc']}",
-        # f"--build-arg=IMAGE_SRC={_d['source']}",
-        # f"--build-arg=IMAGE_URL={_d['docker_url']}",
+        f"{__project_name__}:{__version__}",
+        *_podman_args,
         f"--build-arg=IMAGE_GIT_HASH={git_hash.strip()}",
-        f"--build-arg=IMAGE_DESCRIPTION={_d['description']}",
         # <build-args-here>
+        "--no-cache",
         "--format",
         "docker",
         ".",
@@ -298,6 +282,43 @@ def container_build(session):
 
 @nox.session()
 def container_lint(session):
+    _pyproject_data = gather_data("useless-in-local-build")
+
+    hadolint(session)
+
+    trivy(session)
+
+    # this works on downloaded images from dockerhub; only way to work on local built images is through tar file
+    # "podman run -v /var/run/docker.sock:/var/run/docker.sock -v ./trivy_cache:/root/.cache/
+    #   -v ./trivy.yaml:/root/trivy.yaml aquasec/trivy:0.53.0 -c /root/trivy.yaml
+    #   image gpongelli/python-active-versions:1.17.2"
+
+    dive(session)
+
+
+
+@nox.session()
+def dive(session):
+    _pyproject_data = gather_data("useless-in-local-build")
+
+    session.run(
+        "podman",
+        "run",
+        "--rm",
+        "-e",
+        "CI=true",
+        "-v",
+        "/var/run/docker.sock:/var/run/docker.sock",
+        "wagoodman/dive:latest",
+        f"{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
+        external=True,
+        success_codes=[0, 1],
+    )
+
+
+@nox.session()
+def hadolint(session):
+    _pyproject_data = gather_data("useless-in-local-build")
 
     session.run(
         "podman",
@@ -317,8 +338,16 @@ def container_lint(session):
         success_codes=[0, 1],
     )
 
+
+@nox.session(requires=["container"])
+def trivy(session):
+    _pyproject_data = gather_data("useless-in-local-build")
+
+    _trivy_image = "aquasec/trivy:0.60.0"
+
     # create trivy cache folder if not exist
     os.makedirs('trivy_cache', exist_ok=True)
+
     # run trivy on local project
     session.run(
         "podman",
@@ -331,7 +360,7 @@ def container_lint(session):
         "./trivy_cache:/root/.cache/",
         "-v",
         "./trivy.yaml:/root/trivy.yaml",
-        "aquasec/trivy:0.53.0",
+        _trivy_image,
         "-c",
         "/root/trivy.yaml",
         "fs",
@@ -340,32 +369,11 @@ def container_lint(session):
         success_codes=[0, 1],
     )
 
-    container_build(session)
-
-    # save image as tar to be scanned by trivy
-    session.run(
-        "podman",
-        "save",
-        "-o",
-        f"{{ cookiecutter.project_slug }}-{__version__}.tar",
-        f"{{ cookiecutter.project_slug }}:{__version__}",
-        external=True,
-    )
-
-    # save image as tar to be scanned by trivy
-    session.run(
-        "podman",
-        "save",
-        "-o",
-        f"{__project_name__}-{__version__}.tar",
-        f"{__project_name__}:{__version__}",
-        external=True,
-    )
-
     # run trivy scan
     session.run(
         "podman",
         "run",
+        "--rm",
         "-v",
         "/var/run/docker.sock:/var/run/docker.sock",
         "-v",
@@ -374,30 +382,74 @@ def container_lint(session):
         "./trivy_cache:/root/.cache/",
         "-v",
         "./trivy.yaml:/root/trivy.yaml",
-        "aquasec/trivy:0.53.0",
+        _trivy_image,
         "-c",
         "/root/trivy.yaml",
         "image",
-        "--input",
-        f"/root/proj/{__project_name__}-{__version__}.tar",
+        f"localhost/{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
         external=True,
         success_codes=[0, 1],
     )
 
-    os.remove(f"{__project_name__}-{__version__}.tar")
 
-    # this works on downloaded images from dockerhub; only way to work on local built images is through tar file
-    # "podman run -v /var/run/docker.sock:/var/run/docker.sock -v ./trivy_cache:/root/.cache/
-    #   -v ./trivy.yaml:/root/trivy.yaml aquasec/trivy:0.53.0 -c /root/trivy.yaml
-    #   image {{ cookiecutter.dockerhub_username }}/{{ cookiecutter.project_slug }}:{__version__}"
+# https://www.jit.io/resources/appsec-tools/a-guide-to-generating-sbom-with-syft-and-grype
 
+@nox.session(requires=["container"])
+def syft(session):
+    _pyproject_data = gather_data("useless-in-local-build")
+
+    _tool_image = "anchore/syft:v1.20.0"
+
+    # https://github.com/anchore/syft , could be useful a local config file ?
+
+    # run tool on local project
     session.run(
         "podman",
         "run",
         "--rm",
-        "-e", "CI=true",
-        "-v", "/var/run/docker.sock:/var/run/docker.sock",
-        "wagoodman/dive:latest",
-        f"{{ cookiecutter.project_slug }}-{__version__}",
+        "-v",
+        "/var/run/docker.sock:/var/run/docker.sock",
+        "-v",
+        ".:/tmp/proj",
+        _tool_image,
+        "scan",
+        "--scope",
+        "all-layers",
+        "--enrich",
+        "all",
+        "-o",
+        "syft-json=/tmp/proj/sbom.syft.json",  # out file
+        "-o",
+        "spdx-json=/tmp/proj/sbom.spdx.json",  # out file
+        f"localhost/{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
         external=True,
+        success_codes=[0, 1],
+    )
+
+
+@nox.session(requires=["container"])
+def grype(session):
+    _pyproject_data = gather_data("useless-in-local-build")
+
+    _tool_image = "anchore/grype:v0.89.0"
+
+    # https://github.com/anchore/grype , could be useful a local config file ?
+
+    # run tool on local project
+    session.run(
+        "podman",
+        "run",
+        "--rm",
+        "-v",
+        "/var/run/docker.sock:/var/run/docker.sock",
+        "-v",
+        ".:/tmp/proj",
+        _tool_image,
+        "-o",
+        "json",  # out file
+        "--file",
+        "/tmp/proj/grype.json",  # out file
+        f"localhost/{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
+        external=True,
+        success_codes=[0, 1],
     )
