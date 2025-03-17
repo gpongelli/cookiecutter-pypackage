@@ -1,0 +1,10 @@
+venv*/
+.git/
+
+Dockerfile
+trivy_cache/
+.nox/
+old*
+tests/
+**/build/
+**/dist/
