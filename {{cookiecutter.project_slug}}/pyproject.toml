@@ -9,18 +9,22 @@
     'LGPL-3.0-or-later': 'License :: OSI Approved :: GNU Lesser General Public License v3 or later (LGPLv3+)'
 } -%}
 
-[tool.poetry]
+[project]
     name = "{{ cookiecutter.project_slug }}"
     version = "{{ cookiecutter.version }}"
-    homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
-    repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
-    documentation = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/"
     description = "{{ cookiecutter.project_short_description }}."
-    authors = ["{{ cookiecutter.full_name.replace('\"', '\\\"') }} <{{ cookiecutter.email }}>"]
-    readme = "README.md"
+    authors = [
+        { name = "{{ cookiecutter.full_name.replace('\"', '\\\"') }}", email = "{{ cookiecutter.email }}" }
+    ]
     {%- if cookiecutter.open_source_license in license_classifiers %}
-    license =  "{{ cookiecutter.open_source_license }}"
+    license =  { text = "{{ cookiecutter.open_source_license }}" }
+    # alternatively license = { file = "" }
     {%- endif %}
+    readme = "README.md"
+    requires-python = ">=3.12"
+    dependencies = [
+    ]
+
     # full classifier list can be found at https://pypi.org/classifiers/
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -30,9 +34,37 @@
     {%- endif %}
         'Natural Language :: English',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.12',
     ]
+
+    keywords = [""]
+
+    [project.urls]
+        homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
+        repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
+        documentation = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/"
+        "Bug Tracker" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
+        "Changelog" = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/history.html"
+        "Docker" = "https://hub.docker.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
+
+{% if cookiecutter.command_line_interface|lower == 'click' -%}
+    # To include a file as a script, use tool.poetry.scripts instead.
+    [project.scripts]
+        {{ cookiecutter.project_slug }} = '{{ cookiecutter.pkg_name }}.cli_tools.cli:main'
+
+{% endif -%}
+
+    # DEPENDENCIES: With Poetry 2.0, you should consider using the project.dependencies section instead of tool.poetry.dependencies .
+    # Alternatively, you can add dependencies to dynamic and define your dependencies completely in the tool.poetry section. 
+    #   Using only the tool.poetry section might make sense in non-package mode when you will not build an sdist or a wheel.
+    # However, there are some cases where you might still need to use tool.poetry.dependencies. 
+    #   For example, if you want to define additional information that is not required for building but only for locking 
+    #   (for example an explicit source), you can enrich dependency information in the tool.poetry section.
+    dynamic = [ "dependencies" ]
+
+
+[tool.poetry]
+    package-mode = true
     packages = [
         { include = "{{ cookiecutter.pkg_name }}" },
         { include = "{{ cookiecutter.pkg_name }}/py.typed" },
@@ -40,17 +72,13 @@
         # { include = "libs", format = "sdist" },  in case of C extension
     ]
 
+    requires-poetry = ">=2.0"
+
     # in case of C extension
     #[tool.poetry.build]
     #    script = "build_extension.py"
     #    generate-setup-file = true
 
-    [tool.poetry.urls]
-        "Issue Tracker" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}/issues"
-        "Documentation" = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/"
-        "Changelog" = "https://{{ cookiecutter.github_username }}.github.io/{{ cookiecutter.project_slug }}/history.html"
-        "Source" = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
-        "Docker" = "https://hub.docker.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
 
     [tool.poetry.dependencies]
         python = ">=3.9.0,<3.13"
@@ -68,6 +96,7 @@
         # pwinput = "^1.0.3"  # needs pycharm's "Emulate terminal in console window" option to run correctly
         # pytz = "2024.1"
 
+    #  Only main dependencies can be specified in the project section. Other Dependency groups must still be specified in the tool.poetry section.
     [tool.poetry.group.devel]
         optional = true
         [tool.poetry.group.devel.dependencies]
@@ -125,11 +154,7 @@
             # types-tabulate = "^0.9.0.20240106"
             python-dotenv = "^1.0.1"
 
-{% if cookiecutter.command_line_interface|lower == 'click' -%}
-    [tool.poetry.scripts]
-        {{ cookiecutter.project_slug }} = '{{ cookiecutter.pkg_name }}.cli_tools.cli:main'
 
-{% endif -%}
 
 [tool.black]
     line-length = 120
@@ -287,7 +312,7 @@
 
 
 [build-system]
-    requires = ["setuptools", "poetry-core>=1.0.0"]
+    requires = ["setuptools", "poetry-core>=2.0.0,<3.0.0"]
     build-backend = "poetry.core.masonry.api"
 
 
