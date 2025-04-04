@@ -37,6 +37,14 @@
 
     keywords = [""]
 
+    # DEPENDENCIES: With Poetry 2.0, you should consider using the project.dependencies section instead of tool.poetry.dependencies .
+    # Alternatively, you can add dependencies to dynamic and define your dependencies completely in the tool.poetry section.
+    #   Using only the tool.poetry section might make sense in non-package mode when you will not build an sdist or a wheel.
+    # However, there are some cases where you might still need to use tool.poetry.dependencies.
+    #   For example, if you want to define additional information that is not required for building but only for locking
+    #   (for example an explicit source), you can enrich dependency information in the tool.poetry section.
+    dynamic = [ "dependencies" ]
+
     [project.urls]
         homepage = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
         repository = "https://github.com/{{ cookiecutter.github_username }}/{{ cookiecutter.project_slug }}"
@@ -52,13 +60,6 @@
 
 {% endif -%}
 
-    # DEPENDENCIES: With Poetry 2.0, you should consider using the project.dependencies section instead of tool.poetry.dependencies .
-    # Alternatively, you can add dependencies to dynamic and define your dependencies completely in the tool.poetry section. 
-    #   Using only the tool.poetry section might make sense in non-package mode when you will not build an sdist or a wheel.
-    # However, there are some cases where you might still need to use tool.poetry.dependencies. 
-    #   For example, if you want to define additional information that is not required for building but only for locking 
-    #   (for example an explicit source), you can enrich dependency information in the tool.poetry section.
-    dynamic = [ "dependencies" ]
 
 
 [tool.poetry]
@@ -79,7 +80,7 @@
 
 
     [tool.poetry.dependencies]
-        python = ">=3.9.0,<3.13"
+        python = ">=3.12.0,<3.13"
 
         {%- if cookiecutter.command_line_interface|lower == 'click' %}
         click = "^8.1.7"
@@ -88,9 +89,9 @@
         {%- endif %}
         tqdm = "^4.66.0"
         termcolor = "^2.4.0"
-        
-        # pydantic = "^2.7.4"
-        # pydantic_settings = "^2.3.3"
+        pydantic = "^2.10.6"
+        pydantic_settings = "^2.2.1"
+
         # pwinput = "^1.0.3"  # needs pycharm's "Emulate terminal in console window" option to run correctly
         # pytz = "2024.1"
 
@@ -125,7 +126,7 @@
             m2r2 = "0.3.3.post2"
             {%- endif %}
             pre-commit = "^2.12.0"
-            pytomlpp = "^1.0.11"
+            # pytomlpp = "^1.0.11"
             commitizen = "^3.27.0"
             darglint = "^1.8.1"
             bandit = "^1.7.9"
@@ -144,13 +145,13 @@
             pyinstaller = "^6.8.0"
             nox = "^2024.4.15"
             ruff = "^0.4.10"
-            rtoml = "^0.11.0"  # needs rust compiler installed, alternative t pytomlpp
+            # rtoml = "^0.11.0"  # needs rust compiler installed, alternative t pytomlpp
             # types from mypy execution
             # types-pytz = "^2024.1.0.20240417"
             # types-PyYAML = "^6.0.12.20240311"
             # types-requests = "^2.32.0.20240622"
             # types-tabulate = "^0.9.0.20240106"
-            python-dotenv = "^1.0.1"
+            # python-dotenv = "^1.0.1"
 
 
 

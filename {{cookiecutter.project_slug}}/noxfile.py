@@ -7,16 +7,11 @@ from pathlib import Path
 from python_active_versions.python_active_versions import get_active_python_versions
 from typing import List
 
-from {{ cookiecutter.pkg_name }} import __project_name__, __version__
+from {{ cookiecutter.pkg_name }} import _project
 from {{ cookiecutter.pkg_name }}.bundle import get_bundle_dir
+from {{ cookiecutter.pkg_name }}.models import EnvVars
+from {{ cookiecutter.pkg_name }}.pipeline import gather_data
 
-from dotenv import load_dotenv
-
-from gather_vars import gather_data
-
-# load variables from .env file for local build, if any present
-# CI build env vars are passed in different way
-load_dotenv()
 
 def _get_active_version(_active_versions: List[dict]) -> List[str]:
     return [_av['version'] for _av in _active_versions]
@@ -168,18 +163,6 @@ def lint(session):
 
 
 def _build(session):
-    _d = gather_data('useless-in-local-build')
-    __description = _d['description']
-    __project_name = _d['project_name']
-
-    with fileinput.FileInput(get_bundle_dir() / '{{ cookiecutter.pkg_name }}/__init__.py', inplace=True) as f:
-        for line in f:
-            if line.startswith('__description__'):
-                print(f'__description__ = "{__description}"')
-            elif line.startswith("__project_name__"):
-                print(f'__project_name__ = "{__project_name}"')
-            else:
-                print(line, end='')
     session.run("poetry", "build", external=True)
     session.run("poetry", "run", "twine", "check", "dist/*", external=True)
 
@@ -255,12 +238,16 @@ def release(session):
 
 @nox.session(name='container')
 def container_build(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     git_hash = session.run(
         "poetry", "run", "git", "rev-parse", "HEAD",
         external=True, silent=True
     )
+
+    os.environ['GIT_COMMIT'] = git_hash.strip()
+    _v = EnvVars(**os.environ)
+    _project.env_vars = _v
+
+    _pyproject_data = gather_data("useless-in-local-build")
 
     _podman_args = [f'--build-arg={k}={v}' for k, v in _pyproject_data.items()]
 
@@ -268,9 +255,8 @@ def container_build(session):
         "podman",
         "build",
         "-t",
-        f"{__project_name__}:{__version__}",
+        f"{_project.IMAGE_NAME}:{_project.IMAGE_VERSION}",
         *_podman_args,
-        f"--build-arg=IMAGE_GIT_HASH={git_hash.strip()}",
         # <build-args-here>
         "--no-cache",
         "--format",
@@ -282,8 +268,6 @@ def container_build(session):
 
 @nox.session()
 def container_lint(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     hadolint(session)
 
     trivy(session)
@@ -299,8 +283,6 @@ def container_lint(session):
 
 @nox.session()
 def dive(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     session.run(
         "podman",
         "run",
@@ -318,8 +300,6 @@ def dive(session):
 
 @nox.session()
 def hadolint(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     session.run(
         "podman",
         "run",
@@ -341,8 +321,6 @@ def hadolint(session):
 
 @nox.session(requires=["container"])
 def trivy(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     _trivy_image = "aquasec/trivy:0.60.0"
 
     # create trivy cache folder if not exist
@@ -386,7 +364,7 @@ def trivy(session):
         "-c",
         "/root/trivy.yaml",
         "image",
-        f"localhost/{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
+        f"localhost/{_project.IMAGE_NAME}:{_project.IMAGE_VERSION}",
         external=True,
         success_codes=[0, 1],
     )
@@ -396,8 +374,6 @@ def trivy(session):
 
 @nox.session(requires=["container"])
 def syft(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     _tool_image = "anchore/syft:v1.20.0"
 
     # https://github.com/anchore/syft , could be useful a local config file ?
@@ -421,7 +397,7 @@ def syft(session):
         "syft-json=/tmp/proj/sbom.syft.json",  # out file
         "-o",
         "spdx-json=/tmp/proj/sbom.spdx.json",  # out file
-        f"localhost/{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
+        f"localhost/{_project.IMAGE_NAME}:{_project.IMAGE_VERSION}",
         external=True,
         success_codes=[0, 1],
     )
@@ -429,8 +405,6 @@ def syft(session):
 
 @nox.session(requires=["container"])
 def grype(session):
-    _pyproject_data = gather_data("useless-in-local-build")
-
     _tool_image = "anchore/grype:v0.89.0"
 
     # https://github.com/anchore/grype , could be useful a local config file ?
@@ -449,7 +423,7 @@ def grype(session):
         "json",  # out file
         "--file",
         "/tmp/proj/grype.json",  # out file
-        f"localhost/{_pyproject_data['IMAGE_NAME']}:{_pyproject_data['IMAGE_VERSION']}",
+        f"localhost/{_project.IMAGE_NAME}:{_project.IMAGE_VERSION}",
         external=True,
         success_codes=[0, 1],
     )
