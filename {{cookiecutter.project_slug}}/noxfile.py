@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from python_active_versions.python_active_versions import get_active_python_versions
 from typing import List
+from re import sub
 
 from {{ cookiecutter.pkg_name }} import _project
 from {{ cookiecutter.pkg_name }}.bundle import get_bundle_dir
