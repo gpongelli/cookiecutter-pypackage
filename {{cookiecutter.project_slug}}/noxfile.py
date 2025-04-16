@@ -229,6 +229,12 @@ def test(session):
 @nox.session
 def release(session):
     """Run release task"""
+    git_branch = session.run("poetry", "run", "git", "rev-parse", "--abbrev-ref", "HEAD", external=True, silent=True)
+    if git_branch != "main":
+        import sys
+        sys.tracebacklimit = 0
+        raise RuntimeError("Release task can be executed only in main branch.")
+
     dev_commands(session)
 
     session.run("poetry", "run", "cz", "-nr", "3", "bump", "--changelog", "--yes", external=True)
