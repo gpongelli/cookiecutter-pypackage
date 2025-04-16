@@ -229,7 +229,7 @@ def test(session):
 @nox.session
 def release(session):
     """Run release task"""
-    git_branch = session.run("poetry", "run", "git", "rev-parse", "--abbrev-ref", "HEAD", external=True, silent=True)
+    git_branch = session.run("poetry", "run", "git", "rev-parse", "--abbrev-ref", "HEAD", external=True, silent=True).strip()
     if git_branch != "main":
         import sys
         sys.tracebacklimit = 0
